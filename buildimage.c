@@ -17,10 +17,26 @@
 #define BOOTLOADER_SIG_OFFSET 0x1fe /* offset for boot loader signature */
 // more defines...
 
+typedef long size_t;
+
 /* Reads in an executable file in ELF format*/
 Elf32_Phdr * read_exec_file(FILE **execfile, char *filename, Elf32_Ehdr **ehdr){
+  // const int ofssets [] = {0x00, 0x10, 0x12, 0x14, 0x18, 
+  //                         0x1C, 0x20, 0x24, 0x28, 0x2A,
+  //                         0x2C, 0x2E, 0x30, 0x32}; 
+  Elf32_Phdr *phdr = malloc(sizeof(Elf32_Phdr));
+
+  fseek(*execfile, 0, SEEK_SET);
+  size_t bytes_read = fread((void*)*ehdr, 52, 1, *execfile);
+
+  assert(bytes_read == 52);
   
-  return NULL;
+  fseek(*execfile, (*ehdr)->e_phoff, SEEK_SET);
+  bytes_read = fread((void*)phdr, (*ehdr)->e_phnum, 1, *execfile);
+  
+  assert(bytes_read == (*ehdr)->e_phnum);
+
+  return phdr;
 }
 
 /* Writes the bootblock to the image file */
@@ -72,15 +88,21 @@ int main(int argc, char **argv){
 
   Elf32_Phdr *boot_program_header; //bootblock ELF program header
   Elf32_Phdr *kernel_program_header; //kernel ELF program header
-
   /* build image file */
-
+  imagefile = fopen(IMAGE_FILE, "wb");
+  kernelfile = fopen("kernel", "rb");
+  bootfile = fopen("bootblock", "rb");
+  
+  assert(imagefile != NULL);
+  
   /* read executable bootblock file */  
-
+  boot_program_header = read_exec_file(&bootfile, "bootblock", &boot_program_header);
+  
   /* write bootblock */  
 
   /* read executable kernel file */
-
+  kernel_program_header = read_exec_file(&kernelfile, "kernel", &kernel_header);
+ 
   /* write kernel segments to image */
 
   /* tell the bootloader how many sectors to read to load the kernel */
