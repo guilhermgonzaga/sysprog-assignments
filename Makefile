@@ -11,7 +11,7 @@ KERNEL_ADDR	= 0x1000
 #-fno-builtin:		Don't recognize builtin functions that do not begin
 #			with '__builtin_' as prefix.
 #
-#-fomit-frame-pointer:	Don't keep the frame pointer in a register for 
+#-fomit-frame-pointer:	Don't keep the frame pointer in a register for
 #			functions that don't need one.
 #
 #-make-program-do-what-i-want-it-to-do:
@@ -32,7 +32,7 @@ CCOPTS = -Wall -g -m32 -c -fomit-frame-pointer -O2 -fno-builtin
 #-nostdlib:	Don't use the standard system libraries and startup files
 #		when linking. Only the files you specify will be passed
 #		to the linker.
-#          
+#
 
 LDOPTS = -nostartfiles -nostdlib -melf_i386
 
@@ -51,10 +51,10 @@ buildimage: buildimage.o
 
 # Build an image to put on the floppy
 image: bootblock buildimage kernel
-	./buildimage.c --extended ./bootblock ./kernel
+	./buildimage --extended ./bootblock ./kernel
 
 # Put the image on the usb stick (these two stages are independent, as both
-# vmware and bochs can run using only the image file stored on the harddisk)	
+# vmware and bochs can run using only the image file stored on the harddisk)
 boot: image
 	dd if=./image of=/dev/sdb bs=512
 
