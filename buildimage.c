@@ -1,4 +1,4 @@
-/* Author(s): <Your name(s) here>
+/* Author(s): Felipe Hiroshi Baron e Guilherme Gonzaga
  * Creates operating system image suitable for placement on a boot disk
 */
 /* TODO: Comment on the status of your submission. Largely unimplemented */
@@ -42,8 +42,8 @@ Elf32_Phdr * read_exec_file(FILE **execfile, char *filename, Elf32_Ehdr **ehdr){
 void write_bootblock(FILE **imagefile, FILE *bootfile, Elf32_Ehdr *boot_header, Elf32_Phdr *boot_phdr){
   void *buffer = malloc(boot_phdr->p_filesz);
 
-  fseek(*bootfile, boot_phdr->p_offset, SEEK_SET);
-  fread(buffer, boot_phdr->p_filesz, 1, *bootfile);
+  fseek(bootfile, boot_phdr->p_offset, SEEK_SET);
+  fread(buffer, boot_phdr->p_filesz, 1, bootfile);
   fseek(*imagefile, boot_phdr->p_offset, SEEK_SET);
   fwrite(buffer, boot_phdr->p_filesz, 1, *imagefile);
 
