@@ -21,19 +21,17 @@
 
 /* Reads in an executable file in ELF format*/
 Elf32_Phdr * read_exec_file(FILE **execfile, char *filename, Elf32_Ehdr **ehdr){
-  // const int ofssets [] = {0x00, 0x10, 0x12, 0x14, 0x18,
-  //                         0x1C, 0x20, 0x24, 0x28, 0x2A,
-  //                         0x2C, 0x2E, 0x30, 0x32};
+
   Elf32_Phdr *phdr = malloc(sizeof(Elf32_Phdr));
-  size_t bytes_read;
+  size_t items_read;
 
   fseek(*execfile, 0, SEEK_SET);
-  bytes_read = fread((void*)*ehdr, ELF32_HEADER_SIZE, 1, *execfile);
-  assert(bytes_read == ELF32_HEADER_SIZE);
-
+  items_read = fread((void*)*ehdr,ELF32_HEADER_SIZE, 1, *execfile);
+  assert(items_read == 1); 
+  
   fseek(*execfile, (*ehdr)->e_phoff, SEEK_SET);
-  bytes_read = fread((void *)phdr, (*ehdr)->e_phentsize, (*ehdr)->e_phnum, *execfile);
-  assert(bytes_read == (*ehdr)->e_phnum);
+  items_read = fread((void *)phdr, (*ehdr)->e_phentsize, (*ehdr)->e_phnum, *execfile);
+  assert(items_read == (*ehdr)->e_phnum);
 
   return phdr;
 }
@@ -52,7 +50,7 @@ void write_bootblock(FILE **imagefile, FILE *bootfile, Elf32_Ehdr *boot_header, 
 
 /* Writes the kernel to the image file */
 void write_kernel(FILE **imagefile, FILE *kernelfile, Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr){
-
+  
 
 }
 
@@ -101,7 +99,7 @@ int main(int argc, char **argv){
   /* read executable bootblock file */
   bootfile = fopen("bootblock", "rb");
   assert(bootfile != NULL);
-  boot_program_header = read_exec_file(&bootfile, "bootblock", &boot_program_header);
+  boot_program_header = read_exec_file(&bootfile, "bootblock", &boot_header);
 
   /* write bootblock */
   write_bootblock(&imagefile, bootfile, boot_header, boot_program_header);
@@ -109,7 +107,7 @@ int main(int argc, char **argv){
   /* read executable kernel file */
   kernelfile = fopen("kernel", "rb");
   assert(kernelfile != NULL);
-  kernel_program_header = read_exec_file(&kernelfile, "kernel", &kernel_header);
+  kernel_program_header = read_exec_file(&kernelfile, "kernel" , &kernel_header);
 
   /* write kernel segments to image */
 
