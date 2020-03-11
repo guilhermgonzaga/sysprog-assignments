@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 #define IMAGE_FILE "./image"
 #define ARGS "[--extended] [--vm] <bootblock> <executable-file> ..."
 
@@ -56,13 +57,17 @@ void write_kernel(FILE **imagefile, FILE *kernelfile, Elf32_Ehdr *kernel_header,
 
 /* Counts the number of sectors in the kernel */
 int count_kernel_sectors(Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr){
-
-    return 0;
+    float sectors;
+    sectors = (float)kernel_phdr->p_filesz/SECTOR_SIZE;
+    if(sectors - (int)sectors/1 != 0){
+      sectors = (int)sectors+1;
+    }
+    return sectors;
 }
 
 /* Records the number of sectors in the kernel */
 void record_kernel_sectors(FILE **imagefile, Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr, int num_sec){
-
+  // (int)kernel_header->e_shnum
 }
 
 
@@ -112,6 +117,8 @@ int main(int argc, char **argv){
   /* write kernel segments to image */
 
   /* tell the bootloader how many sectors to read to load the kernel */
+  count_kernel_sectors(kernel_header, boot_program_header);
+
 
   /* check for  --extended option */
   if(!strncmp(argv[1],"--extended",11)){
