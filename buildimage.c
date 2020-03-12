@@ -40,7 +40,6 @@ Elf32_Phdr * read_exec_file(FILE **execfile, char *filename, Elf32_Ehdr **ehdr){
 void write_bootblock(FILE **imagefile, FILE *bootfile, Elf32_Ehdr *boot_header, Elf32_Phdr *boot_phdr){
   unsigned char *buffer = malloc(boot_phdr->p_filesz);
   const size_t padding_length = SECTOR_SIZE - (boot_phdr->p_filesz % SECTOR_SIZE);
-  const char zero = 0;
   size_t items_rw;
 
   fseek(bootfile, boot_phdr->p_offset, SEEK_SET);
@@ -51,8 +50,8 @@ void write_bootblock(FILE **imagefile, FILE *bootfile, Elf32_Ehdr *boot_header, 
   items_rw = fwrite(buffer, boot_phdr->p_filesz, 1, *imagefile);
   assert(items_rw == 1);
 
-  buffer[0] = 0;
-  items_rw = fwrite(buffer, 1, padding_length, *imagefile);
+  unsigned char *buffer_padding = calloc(padding_length, 1);
+  items_rw = fwrite(buffer_padding, 1, padding_length, *imagefile);
   assert(items_rw == padding_length);
 
   /* mark the bootloader sector as bootable */
@@ -63,19 +62,37 @@ void write_bootblock(FILE **imagefile, FILE *bootfile, Elf32_Ehdr *boot_header, 
   assert(items_rw == 1);
 
   free(buffer);
+  free(buffer_padding);
 }
 
 /* Writes the kernel to the image file */
 void write_kernel(FILE **imagefile, FILE *kernelfile, Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr){
+  unsigned char *buffer = malloc(kernel_phdr->p_filesz);
+  const size_t padding_length = SECTOR_SIZE - (kernel_phdr->p_filesz % SECTOR_SIZE);
+  size_t items_rw;
+  const char zero = 0;
 
+  fseek(kernelfile, kernel_phdr->p_offset, SEEK_SET);
+  items_rw = fread(buffer, kernel_phdr->p_filesz, 1, kernelfile);
+  assert(items_rw == 1);
 
+  fseek(*imagefile, SECTOR_SIZE, SEEK_SET);
+  items_rw = fwrite(buffer, kernel_phdr->p_filesz, 1, *imagefile);
+  assert(items_rw == 1);
+
+  unsigned char *buffer_padding = calloc(padding_length, 1);
+  items_rw = fwrite(buffer_padding, 1, padding_length, *imagefile);
+  assert(items_rw == padding_length);
+ 
+
+  free(buffer);
+  free(buffer_padding);
 }
 
 /* Counts the number of sectors in the kernel */
 int count_kernel_sectors(Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr){
-  float sectors;
-  sectors = (float)kernel_phdr->p_filesz/SECTOR_SIZE;
-  if(sectors - (int)sectors/1 != 0){
+  float sectors = (float)kernel_phdr->p_filesz/SECTOR_SIZE;
+  if(kernel_phdr->p_filesz%SECTOR_SIZE != 0){
     sectors = (int)sectors+1;
   }
   return sectors;
@@ -83,7 +100,9 @@ int count_kernel_sectors(Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr){
 
 /* Records the number of sectors in the kernel */
 void record_kernel_sectors(FILE **imagefile, Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr, int num_sec){
-  // (int)kernel_header->e_shnum
+  fseek(*imagefile, 2, SEEK_SET);
+  fwrite(&num_sec, sizeof(int), 1, *imagefile);
+
 }
 
 
@@ -91,7 +110,6 @@ void record_kernel_sectors(FILE **imagefile, Elf32_Ehdr *kernel_header, Elf32_Ph
 void extended_opt(Elf32_Phdr *bph, int k_phnum, Elf32_Phdr *kph, int num_sec){
 
   /* print number of disk sectors used by the image */
-
 
   /* bootblock segment info */
 
@@ -113,6 +131,8 @@ int main(int argc, char **argv){
   Elf32_Phdr *boot_program_header; //bootblock ELF program header
   Elf32_Phdr *kernel_program_header; //kernel ELF program header
 
+  int num_sec;
+
   /* build image file */
   imagefile = fopen(IMAGE_FILE, "wb");
   assert(imagefile != NULL);
@@ -121,7 +141,6 @@ int main(int argc, char **argv){
   bootfile = fopen("bootblock", "rb");
   assert(bootfile != NULL);
   boot_program_header = read_exec_file(&bootfile, "bootblock", &boot_header);
-
   /* write bootblock */
   write_bootblock(&imagefile, bootfile, boot_header, boot_program_header);
 
@@ -131,10 +150,12 @@ int main(int argc, char **argv){
   kernel_program_header = read_exec_file(&kernelfile, "kernel", &kernel_header);
 
   /* write kernel segments to image */
+  write_kernel(&imagefile, kernelfile, kernel_header, kernel_program_header);
 
   /* tell the bootloader how many sectors to read to load the kernel */
-  count_kernel_sectors(kernel_header, boot_program_header);
+  num_sec = count_kernel_sectors(kernel_header, kernel_program_header);
 
+  record_kernel_sectors(&imagefile,kernel_header, kernel_program_header,num_sec);
 
   /* check for  --extended option */
   if(!strncmp(argv[1],"--extended",11)){
