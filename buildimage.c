@@ -22,47 +22,63 @@
 
 /* Reads in an executable file in ELF format*/
 Elf32_Phdr * read_exec_file(FILE **execfile, char *filename, Elf32_Ehdr **ehdr){
-
   Elf32_Phdr *phdr = malloc(sizeof(Elf32_Phdr));
-  size_t items_read;
+  size_t items_rw;
 
   fseek(*execfile, 0, SEEK_SET);
-  items_read = fread((void*)*ehdr,ELF32_HEADER_SIZE, 1, *execfile);
-  assert(items_read == 1); 
-  
+  items_rw = fread(*ehdr, ELF32_HEADER_SIZE, 1, *execfile);
+  assert(items_rw == 1);
+
   fseek(*execfile, (*ehdr)->e_phoff, SEEK_SET);
-  items_read = fread((void *)phdr, (*ehdr)->e_phentsize, (*ehdr)->e_phnum, *execfile);
-  assert(items_read == (*ehdr)->e_phnum);
+  items_rw = fread(phdr, (*ehdr)->e_phentsize, (*ehdr)->e_phnum, *execfile);
+  assert(items_rw == (*ehdr)->e_phnum);
 
   return phdr;
 }
 
 /* Writes the bootblock to the image file */
 void write_bootblock(FILE **imagefile, FILE *bootfile, Elf32_Ehdr *boot_header, Elf32_Phdr *boot_phdr){
-  void *buffer = malloc(boot_phdr->p_filesz);
+  unsigned char *buffer = malloc(boot_phdr->p_filesz);
+  const size_t padding_length = SECTOR_SIZE - (boot_phdr->p_filesz % SECTOR_SIZE);
+  const char zero = 0;
+  size_t items_rw;
 
   fseek(bootfile, boot_phdr->p_offset, SEEK_SET);
-  fread(buffer, boot_phdr->p_filesz, 1, bootfile);
-  fseek(*imagefile, boot_phdr->p_offset, SEEK_SET);
-  fwrite(buffer, boot_phdr->p_filesz, 1, *imagefile);
+  items_rw = fread(buffer, boot_phdr->p_filesz, 1, bootfile);
+  assert(items_rw == 1);
+
+  fseek(*imagefile, 0, SEEK_SET);
+  items_rw = fwrite(buffer, boot_phdr->p_filesz, 1, *imagefile);
+  assert(items_rw == 1);
+
+  buffer[0] = 0;
+  items_rw = fwrite(buffer, 1, padding_length, *imagefile);
+  assert(items_rw == padding_length);
+
+  /* mark the bootloader sector as bootable */
+  fseek(*imagefile, BOOTLOADER_SIG_OFFSET, SEEK_SET);
+  buffer[0] = 0x55;
+  buffer[1] = 0xAA;
+  items_rw = fwrite(buffer, 2, 1, *imagefile);
+  assert(items_rw == 1);
 
   free(buffer);
 }
 
 /* Writes the kernel to the image file */
 void write_kernel(FILE **imagefile, FILE *kernelfile, Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr){
-  
+
 
 }
 
 /* Counts the number of sectors in the kernel */
 int count_kernel_sectors(Elf32_Ehdr *kernel_header, Elf32_Phdr *kernel_phdr){
-    float sectors;
-    sectors = (float)kernel_phdr->p_filesz/SECTOR_SIZE;
-    if(sectors - (int)sectors/1 != 0){
-      sectors = (int)sectors+1;
-    }
-    return sectors;
+  float sectors;
+  sectors = (float)kernel_phdr->p_filesz/SECTOR_SIZE;
+  if(sectors - (int)sectors/1 != 0){
+    sectors = (int)sectors+1;
+  }
+  return sectors;
 }
 
 /* Records the number of sectors in the kernel */
@@ -77,7 +93,7 @@ void extended_opt(Elf32_Phdr *bph, int k_phnum, Elf32_Phdr *kph, int num_sec){
   /* print number of disk sectors used by the image */
 
 
-  /*bootblock segment info */
+  /* bootblock segment info */
 
 
   /* print kernel segment info */
@@ -112,7 +128,7 @@ int main(int argc, char **argv){
   /* read executable kernel file */
   kernelfile = fopen("kernel", "rb");
   assert(kernelfile != NULL);
-  kernel_program_header = read_exec_file(&kernelfile, "kernel" , &kernel_header);
+  kernel_program_header = read_exec_file(&kernelfile, "kernel", &kernel_header);
 
   /* write kernel segments to image */
 
