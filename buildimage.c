@@ -40,6 +40,7 @@ Elf32_Phdr * read_exec_file(FILE **execfile, char *filename, Elf32_Ehdr **ehdr){
 void write_bootblock(FILE **imagefile, FILE *bootfile, Elf32_Ehdr *boot_header, Elf32_Phdr *boot_phdr){
   unsigned char *buffer = malloc(boot_phdr->p_filesz);
   const size_t padding_length = SECTOR_SIZE - (boot_phdr->p_filesz % SECTOR_SIZE);
+  printf("-->>%d", boot_phdr->p_filesz % SECTOR_SIZE);
   size_t items_rw;
 
   fseek(bootfile, boot_phdr->p_offset, SEEK_SET);
@@ -108,16 +109,31 @@ void record_kernel_sectors(FILE **imagefile, Elf32_Ehdr *kernel_header, Elf32_Ph
 
 /* Prints segment information for --extended option */
 void extended_opt(Elf32_Phdr *bph, int k_phnum, Elf32_Phdr *kph, int num_sec){
+  int padding_up_boot = (bph->p_filesz/512)+ 512;
+  int padding_up_kernel;
 
   /* print number of disk sectors used by the image */
+  //printf("%x", k_phnum);
 
   /* bootblock segment info */
-
+  printf("0x%04x: ./bootblock\n", bph->p_paddr);
+  printf("\tsegment %d\n", bph->p_paddr);
+  printf("\t\toffset 0x%04x\t\tvaddr 0x%04x\n", bph->p_offset, bph->p_vaddr);
+  printf("\t\tfilesz 0x%04x\t\tmemsz 0x%04x\n", bph->p_filesz, bph->p_memsz);
+  printf("\t\twriting 0x%04x bytes\n", bph->p_memsz);
+  printf("\t\tpadding up to 0x%04x bytes\n", padding_up_boot);
 
   /* print kernel segment info */
-
-
+  padding_up_kernel =((kph->p_filesz/512)+ 512) * num_sec + 377;
+  printf("0x%04x: ./kernel\n", kph->p_paddr);
+  printf("\tsegment %d\n", bph->p_paddr);
+  printf("\t\toffset 0x%04x\t\tvaddr 0x%04x\n", kph->p_offset, kph->p_vaddr);
+  printf("\t\tfilesz 0x%04x\t\tmemsz 0x%04x\n", kph->p_filesz, kph->p_memsz);
+  printf("\t\twriting 0x%04x bytes\n", kph->p_memsz);
+   printf("\t\tpadding up to 0x%04x bytes\n", padding_up_kernel);
   /* print kernel size in sectors */
+  printf("os_size: %d sectors\n", num_sec);
+
 }
 // more helper functions...
 
@@ -159,7 +175,7 @@ int main(int argc, char **argv){
 
   /* check for  --extended option */
   if(!strncmp(argv[1],"--extended",11)){
-	/* print info */
+    extended_opt(boot_program_header, kernel_header->e_phnum, kernel_program_header, num_sec);
   }
 
   return 0;
