@@ -127,7 +127,7 @@ void extended_opt(Elf32_Phdr *bph, int k_phnum, Elf32_Phdr *kph, int32_t num_sec
   /* print kernel segment info */
   padding_up_kernel =(SECTOR_SIZE) * num_sec + 512;
   printf("0x%04x: ./kernel\n", kph->p_paddr);
-  printf("\tsegment %d\n", bph->p_paddr);
+  printf("\tsegment %d\n", kph->p_paddr);
   printf("\t\toffset 0x%04x\t\tvaddr 0x%04x\n", kph->p_offset, kph->p_vaddr);
   printf("\t\tfilesz 0x%04x\t\tmemsz 0x%04x\n", kph->p_filesz, kph->p_memsz);
   printf("\t\twriting 0x%04x bytes\n", kph->p_memsz);
