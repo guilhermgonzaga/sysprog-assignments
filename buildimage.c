@@ -40,7 +40,6 @@ Elf32_Phdr * read_exec_file(FILE **execfile, char *filename, Elf32_Ehdr **ehdr){
 void write_bootblock(FILE **imagefile, FILE *bootfile, Elf32_Ehdr *boot_header, Elf32_Phdr *boot_phdr){
   unsigned char *buffer = malloc(boot_phdr->p_filesz);
   const size_t padding_length = SECTOR_SIZE - (boot_phdr->p_filesz % SECTOR_SIZE);
-  printf("-->>%d", boot_phdr->p_filesz % SECTOR_SIZE);
   size_t items_rw;
 
   fseek(bootfile, boot_phdr->p_offset, SEEK_SET);
@@ -109,7 +108,7 @@ void record_kernel_sectors(FILE **imagefile, Elf32_Ehdr *kernel_header, Elf32_Ph
 
 /* Prints segment information for --extended option */
 void extended_opt(Elf32_Phdr *bph, int k_phnum, Elf32_Phdr *kph, int num_sec){
-  int padding_up_boot = (bph->p_filesz/512)+ 512;
+  int padding_up_boot = (bph->p_filesz/SECTOR_SIZE)+ SECTOR_SIZE;
   int padding_up_kernel;
 
   /* print number of disk sectors used by the image */
@@ -124,7 +123,7 @@ void extended_opt(Elf32_Phdr *bph, int k_phnum, Elf32_Phdr *kph, int num_sec){
   printf("\t\tpadding up to 0x%04x bytes\n", padding_up_boot);
 
   /* print kernel segment info */
-  padding_up_kernel =((kph->p_filesz/512)+ 512) * num_sec + 377;
+  padding_up_kernel =(SECTOR_SIZE) * num_sec + 512;
   printf("0x%04x: ./kernel\n", kph->p_paddr);
   printf("\tsegment %d\n", bph->p_paddr);
   printf("\t\toffset 0x%04x\t\tvaddr 0x%04x\n", kph->p_offset, kph->p_vaddr);
@@ -170,6 +169,7 @@ int main(int argc, char **argv){
 
   /* tell the bootloader how many sectors to read to load the kernel */
   num_sec = count_kernel_sectors(kernel_header, kernel_program_header);
+
 
   record_kernel_sectors(&imagefile,kernel_header, kernel_program_header,num_sec);
 
