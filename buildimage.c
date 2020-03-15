@@ -85,7 +85,7 @@ void write_kernel(FILE **imagefile, FILE *kernelfile, Elf32_Ehdr *kernel_header,
   uint8_t *buffer_padding = calloc(padding_length, 1);
   items_rw = fwrite(buffer_padding, 1, padding_length, *imagefile);
   assert(items_rw == padding_length);
- 
+
   free(buffer);
   free(buffer_padding);
 }
@@ -149,11 +149,11 @@ int main(int argc, char **argv){
   const char *kernel_filename = argv[argc-1];
 
   FILE *kernelfile, *bootfile,*imagefile;  //file pointers for bootblock,kernel and image
-  Elf32_Ehdr *boot_header = malloc(sizeof(Elf32_Ehdr));//bootblock ELF header
-  Elf32_Ehdr *kernel_header = malloc(sizeof(Elf32_Ehdr));//kernel ELF header
+  Elf32_Ehdr *boot_header = malloc(sizeof(Elf32_Ehdr)); //bootblock ELF header
+  Elf32_Ehdr *kernel_header = malloc(sizeof(Elf32_Ehdr)); //kernel ELF header
 
-  Elf32_Phdr *boot_program_header; //bootblock ELF program header
-  Elf32_Phdr *kernel_program_header; //kernel ELF program header
+  Elf32_Phdr *boot_program_header;  //bootblock ELF program header
+  Elf32_Phdr *kernel_program_header;  //kernel ELF program header
 
   int32_t num_sec;
 
@@ -181,7 +181,7 @@ int main(int argc, char **argv){
   num_sec = count_kernel_sectors(kernel_header, kernel_program_header);
   record_kernel_sectors(&imagefile, kernel_header, kernel_program_header, num_sec);
 
-  /* check for  --extended option */
+  /* check for --extended option */
   if(!strncmp(argv[1],"--extended",11)){
     extended_opt(boot_program_header, kernel_header->e_phnum, kernel_program_header, num_sec);
   }
