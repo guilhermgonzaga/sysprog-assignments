@@ -4,6 +4,10 @@
 CC = gcc
 LD = ld
 
+BIN = ./bin
+OBJ = ./obj
+SRC = ./src
+
 # Where to locate the kernel in memory
 KERNEL_ADDR	= 0x1000
 
@@ -41,27 +45,28 @@ LDOPTS = -nostartfiles -nostdlib -melf_i386
 all: bootblock buildimage kernel image
 
 kernel: kernel.o
-	$(LD) $(LDOPTS) -Ttext $(KERNEL_ADDR) -o kernel $<
+	$(LD) $(LDOPTS) -Ttext $(KERNEL_ADDR) -o $(BIN)/kernel $(OBJ)/$<
 
 bootblock: bootblock.o
-	$(LD) $(LDOPTS) -Ttext 0x0 -o bootblock $<
+	$(LD) $(LDOPTS) -Ttext 0x0 -o $(BIN)/bootblock $(OBJ)/$<
 
 buildimage: buildimage.o
-	$(CC) -o buildimage $<
+	$(CC) -o $(BIN)/buildimage $(OBJ)/$<
 
 # Build an image to put on the floppy
 image: bootblock buildimage kernel
-	./buildimage --extended ./bootblock ./kernel
+	$(BIN)/buildimage --extended $(BIN)/bootblock $(BIN)/kernel
 
 # Put the image on the usb stick (these two stages are independent, as both
 # vmware and bochs can run using only the image file stored on the harddisk)
 boot: image
-	dd if=./image of=/dev/sdb bs=512
+	dd if=$(BIN)/image of=/dev/sdb bs=512
 
 # Clean up!
+# Cannot delete bootblock.o or buildimage.given
 clean:
-	rm -f buildimage.o kernel.o
-	rm -f buildimage image bootblock kernel
+	rm -f $(OBJ)/buildimage.o $(OBJ)/kernel.o
+	rm -f $(BIN)/buildimage $(BIN)/image $(BIN)/bootblock $(BIN)/kernel
 
 # No, really, clean up!
 distclean: clean
@@ -73,16 +78,16 @@ distclean: clean
 
 # How to compile buildimage
 buildimage.o:
-	$(CC) -c -o buildimage.o buildimage.c
+	$(CC) -c -Wall -g -o $(OBJ)/buildimage.o $(SRC)/buildimage.c
 
 # How to compile a C file
 %.o:%.c
-	$(CC) $(CCOPTS) $<
+	$(CC) $(CCOPTS) -o $(OBJ)/$@ $(SRC)/$<
 
 # How to assemble
 %.o:%.s
-	$(CC) $(CCOPTS) $<
+	$(CC) $(CCOPTS) -o $(OBJ)/$@ $(SRC)/$<
 
 # How to produce assembler input from a C file
 %.s:%.c
-	$(CC) $(CCOPTS) -S $<
+	$(CC) $(CCOPTS) -S -o $(SRC)/$@ $(SRC)/$<
