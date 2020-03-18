@@ -47,8 +47,8 @@ all: bootblock buildimage kernel image
 kernel: kernel.o
 	$(LD) $(LDOPTS) -Ttext $(KERNEL_ADDR) -o $(BIN)/kernel $(OBJ)/$<
 
-bootblock: bootblock.o
-	$(LD) $(LDOPTS) -Ttext 0x0 -o $(BIN)/bootblock $(OBJ)/$<
+bootblock: $(OBJ)/bootblock.o
+	$(LD) $(LDOPTS) -Ttext 0x0 -o $(BIN)/bootblock $<
 
 buildimage: buildimage.o
 	$(CC) -o $(BIN)/buildimage $(OBJ)/$<
@@ -78,16 +78,16 @@ distclean: clean
 
 # How to compile buildimage
 buildimage.o:
-	$(CC) -c -Wall -g -o $(OBJ)/buildimage.o $(SRC)/buildimage.c
+	$(CC) -c -g -Wall -pedantic -o $(OBJ)/buildimage.o $(SRC)/buildimage.c
 
 # How to compile a C file
-%.o:%.c
-	$(CC) $(CCOPTS) -o $(OBJ)/$@ $(SRC)/$<
+%.o:$(SRC)/%.c
+	$(CC) $(CCOPTS) -o $(OBJ)/$@ $<
 
 # How to assemble
-%.o:%.s
-	$(CC) $(CCOPTS) -o $(OBJ)/$@ $(SRC)/$<
+%.o:$(SRC)/%.s
+	$(CC) $(CCOPTS) -o $(OBJ)/$@ $<
 
 # How to produce assembler input from a C file
-%.s:%.c
-	$(CC) $(CCOPTS) -S -o $(SRC)/$@ $(SRC)/$<
+%.s:$(SRC)/%.c
+	$(CC) $(CCOPTS) -S -o $(SRC)/$@ $<
