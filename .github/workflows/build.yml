@@ -1,0 +1,26 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  compile:
+    name: Compilation
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project_dirs: [buildimage, libbi]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Compile
+        run: make
+        working_directory: ${{matrix.project_dirs}}

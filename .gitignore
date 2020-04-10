@@ -3,3 +3,7 @@ obj/
 *.out
 *.o
 *.bak
+*.a
+
+# Temporarily
+libbi/bitest
