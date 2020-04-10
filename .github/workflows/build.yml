@@ -23,4 +23,4 @@ jobs:
 
       - name: Compile
         run: make
-        working_directory: ${{matrix.project_dirs}}
+        working-directory: ${{matrix.project_dirs}}
