@@ -125,6 +125,18 @@ BigIntMod:
 // BigIntAnd: xay = x & y
 // void BigIntAnd(BigInt x, BigInt y, BigInt xay);
 BigIntAnd:
+	xorq	%r10, %r10
+
+	.L1and:
+	movl	(%rdi, %r10, 4), %ecx
+	movl	(%rsi, %r10, 4), %eax
+	andl	%eax, %ecx
+	movl	%ecx, (%rdx, %r10, 4)
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1and
+
 	ret
 
 // BigIntOr: xoy = x | y
