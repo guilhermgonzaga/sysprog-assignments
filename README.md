@@ -21,4 +21,4 @@ These assignments are organized one per subdirectory, namely
 1. `buildimage`: an ELF32 file reader written in C.
 1. `libbi`: an x86-64 assembly implementation for fixed-width big integer arithmetic.
 
-Find more details in each project's README file.
+Find more details in each project's README files.
