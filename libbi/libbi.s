@@ -53,7 +53,7 @@ BigIntToStr:
 // BigIntEq: returns x == y
 // int BigIntEq(BigInt x, BigInt y);
 BigIntEq:
-	xorq	%rax,%rax
+	xorq	%rax, %rax
 	ret
 
 // BigIntLT: returns x < y
@@ -71,6 +71,16 @@ BigIntGT:
 // BigIntAssign: x = y
 // void BigIntAssign(BigInt x, BigInt y);
 BigIntAssign:
+	xorq	%r10, %r10
+
+	.L1assign:
+	movl	(%rsi, %r10, 4), %ecx
+	movl	%ecx, (%rdi, %r10, 4)
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1assign
+
 	ret
 
 // BigIntAdd: xpy = x + y
