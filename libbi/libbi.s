@@ -54,6 +54,20 @@ BigIntToStr:
 // int BigIntEq(BigInt x, BigInt y);
 BigIntEq:
 	xorq	%rax, %rax
+	xorq	%r10, %r10
+
+	.L1eq:
+	movl	(%rdi, %r10, 4), %ecx
+	movl	(%rsi, %r10, 4), %edx
+	cmpl	%ecx, %edx
+	jne	.C1eq
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1eq
+
+	movq	$1, %rax
+	.C1eq:
 	ret
 
 // BigIntLT: returns x < y
