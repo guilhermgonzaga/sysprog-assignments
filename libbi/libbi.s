@@ -150,4 +150,15 @@ BigIntShar:
 // BigIntNeg: x = ~x
 // void BigIntNeg(BigInt x);
 BigIntNeg:
+	xorq	%r10, %r10
+
+	.L1neg:
+	movl	(%rdi, %r10, 4), %ecx
+	notl	%ecx
+	movl	%ecx, (%rdi, %r10, 4)
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1neg
+
 	ret
