@@ -142,6 +142,18 @@ BigIntAnd:
 // BigIntOr: xoy = x | y
 // void BigIntOr(BigInt x, BigInt y, BigInt xoy);
 BigIntOr:
+	xorq	%r10, %r10
+
+	.L1or:
+	movl	(%rdi, %r10, 4), %ecx
+	movl	(%rsi, %r10, 4), %eax
+	orl	%eax, %ecx
+	movl	%ecx, (%rdx, %r10, 4)
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1or
+
 	ret
 
 // BigIntXor: xxy = x ^ y
