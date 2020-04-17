@@ -159,6 +159,17 @@ BigIntOr:
 // BigIntXor: xxy = x ^ y
 // void BigIntXor(BigInt x, BigInt y, BigInt xxy);
 BigIntXor:
+	xorq	%r10, %r10
+
+	.L1xor:
+	movl	(%rdi, %r10, 4), %ecx
+	movl	(%rsi, %r10, 4), %eax
+	xorl	%eax, %ecx
+	movl	%ecx, (%rdx, %r10, 4)
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1xor
 	ret
 
 // BigIntShl: x = x << n
