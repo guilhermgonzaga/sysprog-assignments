@@ -42,6 +42,19 @@ BigIntRead:
 // The base can be 2, 8, 10 or 16.
 // int BigIntPrint(BigInt n, int b);
 BigIntPrint:
+	subq	$4120, %rsp	# reserve space for buffer
+
+	movq	%rsi, %rdx
+	movq	%rsp, %rsi	# address of the buffer
+	call	BigIntToStr
+
+	movq	$1, %rax	# write syscall number
+	movq	$1, %rdi	# write file descriptor
+	movq	%rsp, %rsi	# address of the buffer
+	movq	$4096, %rdx	# size of the buffer
+	syscall
+
+	addq	$4120, %rsp
 	ret
 
 // Convert n to string in the base b.
