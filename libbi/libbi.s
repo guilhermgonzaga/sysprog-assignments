@@ -74,13 +74,83 @@ BigIntEq:
 // int BigIntLT(BigInt x, BigInt y);
 BigIntLT:
 	xorq	%rax,%rax
+	xorq	%r10, %r10
+
+	movl (%rdi), %ecx 
+	testl	%ecx, %ecx
+	je .L1ltneg
+	movl	(%rsi), %edx
+	testl	%ecx, %edx
+	je .L1ltneg
+
+	.L1lt:
+	movl    (%rdi, %r10, 4), %ecx
+	movl	(%rsi, %r10, 4), %edx
+	cmpl	%ecx, %edx
+	jg	.C1lt
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1lt
+
+	movq	$1, %rax
+	jg	.C1lt
+
+	.L1ltneg:
+	movl    (%rdi, %r10, 4), %ecx
+	movl	(%rsi, %r10, 4), %edx
+	cmpl	%ecx, %edx
+	jl	.C1lt
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1ltneg
+
+	movq	$1, %rax
+
+	.C1lt:
 	ret
 
 // BigIntGT: returns x > y
 // int BigIntGT(BigInt x, BigInt y);
 BigIntGT:
 	xorq	%rax,%rax
+	xorq	%r10, %r10
+
+	movl	(%rdi), %ecx
+	testl	%ecx, %ecx
+	je .L1lgneg
+	movl	(%rsi), %edx
+	testl	%edx, %edx
+	je .L1lgneg
+
+	.L1gt:
+	movl    (%rdi, %r10, 4), %ecx
+	movl	(%rsi, %r10, 4), %edx
+	cmpl	%ecx, %edx
+	jl	.C1gt
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1gt
+
+	.L1lgneg:
+	movl    (%rdi, %r10, 4), %ecx
+	movl	(%rsi, %r10, 4), %edx
+	cmpl	%ecx, %edx
+	jl	.C1gt
+
+	incq	%r10
+	cmpq	$128, %r10
+	jl	.L1lgneg
+
+	movq	$1, %rax
+
+	movq	$1, %rax
+	.C1gt:
 	ret
+
+
 
 // BigIntAssign: x = y
 // void BigIntAssign(BigInt x, BigInt y);
