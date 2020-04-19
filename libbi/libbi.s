@@ -258,11 +258,26 @@ BigIntXor:
 // BigIntShl: x = x << n
 // void BigIntShl(BigInt x, int n);
 BigIntShl:
+	xorq	%rax,%rax
+
+	movq	%rdi, %rax
+
+	movl %esi, %ecx 
+	salq %cl, %rax
+
+
 	ret
 
 // BigIntShar: x = x >> n
 // void BigIntShar(BigInt x, int n);
 BigIntShar:
+	xorq	%rax,%rax
+
+	movq	%rdi, %rax
+
+	movl %esi, %ecx 
+	sarq %cl, %rax
+
 	ret
 
 // BigIntNeg: x = ~x
