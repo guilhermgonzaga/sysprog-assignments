@@ -2,7 +2,7 @@
 
 [![GitHub Workflow][gh-build-badge]][gh-actions]
 [![Lines of Code](https://tokei.rs/b1/github/guilhermgonzaga/systems-programming-assignments?category=code)][repo-url]
-[![license\|Unlicense][license-shield]][license-url]
+[![license][license-shield]][license-url]
 
 [repo-url]:       https://github.com/guilhermgonzaga/systems-programming-assignments/
 [gh-actions]:     https://github.com/guilhermgonzaga/systems-programming-assignments/actions
