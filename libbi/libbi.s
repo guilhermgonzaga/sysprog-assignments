@@ -188,7 +188,26 @@ BigIntAdd:
 // BigIntSub: xmy = x - y
 // void BigIntSub(BigInt x, BigInt y, BigInt xmy);
 BigIntSub:
+	pushq	%r12
+	pushq	%rbx
+	pushq	%rbp
+	movq	%rdi, %rbp	# store address of x
+	movq	%rsi, %rbx	# store address of y
+	movq	%rdx, %r12	# store address of xmy
+
+	movq	%rsi, %rdi
+	call	BigIntCompl	# get 2's complement for y
+
+	movq	%r12, %rdx	# set parameters
+	movq	%rbx, %rsi
+	movq	%rbp, %rdi
+	call	BigIntAdd	# x += -y
+
+	popq	%rbp
+	popq	%rbx
+	popq	%r12
 	ret
+
 
 // BigIntMul: xty = x * y
 // void BigIntMul(BigInt x, BigInt y, BigInt xty);
@@ -294,4 +313,30 @@ BigIntNeg:
 	cmpq	$128, %r10
 	jl	.L1neg
 
+	ret
+
+
+// BigIntCompl: x = -x
+// void BigIntCompl(BigInt x);
+BigIntCompl:
+	pushq	%rbx
+	movq	%rdi, %rbx	# store address of x
+
+	subq	$512, %rsp	# allocate temporary BigInt on the stack
+	movq	%rsp, %rdi	# set address of temporary BigInt
+	movl	$64, %ecx
+	movl	$0, %eax
+	rep	stosq
+	movl	$1, 508(%rsp)	# initialize temporary BigInt to 1
+
+	movq	%rbx, %rdi	# set parameter
+	call	BigIntNeg
+
+	movq	%rbx, %rdx	# set parameters
+	movq	%rsp, %rsi
+	movq	%rbx, %rdi
+	call	BigIntAdd
+
+	addq	$512, %rsp
+	popq	%rbx
 	ret
