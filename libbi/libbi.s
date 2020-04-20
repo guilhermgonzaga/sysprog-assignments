@@ -7,6 +7,7 @@
 	.globl BigIntMul, BigIntDiv, BigIntMod
 	.globl BigIntAnd, BigIntOr, BigIntXor
 	.globl BigIntShl, BigIntShar, BigIntNeg
+	.globl BigIntCompl
 
 // Read a BigInt n in the base b.
 // The base can be 2, 8, 10 or 16.
@@ -195,14 +196,19 @@ BigIntSub:
 	movq	%rsi, %rbx	# store address of y
 	movq	%rdx, %r12	# store address of xmy
 
+	subq	$512, %rsp	# allocate temporary BigInt on the stack
+	movq	%rsp, %rdi	# set parameter
+	call	BigIntAssign	# initialize temporary BigInt to y
+
 	movq	%rsi, %rdi
-	call	BigIntCompl	# get 2's complement for y
+	call	BigIntCompl	# get 2's complement for temporary (-y)
 
 	movq	%r12, %rdx	# set parameters
 	movq	%rbx, %rsi
 	movq	%rbp, %rdi
 	call	BigIntAdd	# x += -y
 
+	addq	$512, %rsp
 	popq	%rbp
 	popq	%rbx
 	popq	%r12
