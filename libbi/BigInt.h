@@ -8,6 +8,7 @@
 typedef int BigInt[BIGINT_LEN];
 typedef char BigIntStr[BIGINT_STR_LEN+1];
 
+
 /* Read a BigInt n in the base b. */
 /* The base can be 2, 8, 10 or 16. */
 int BigIntRead(BigInt n, int b);
@@ -28,7 +29,6 @@ int BigIntLT(BigInt x, BigInt y);
 
 /* BigIntGT: returns x > y */
 int BigIntGT(BigInt x, BigInt y);
-
 
 /* BigIntAssign: x = y */
 void BigIntAssign(BigInt x, BigInt y);
@@ -65,5 +65,9 @@ void BigIntShar(BigInt x, int n);
 
 /* BigIntNeg: x = ~x */
 void BigIntNeg(BigInt x);
+
+/* BigIntCompl: x = -x */
+void BigIntCompl(BigInt x);
+
 
 #endif /* !_BIGINT_H */
