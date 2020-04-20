@@ -3,10 +3,10 @@
 #define _BIGINT_H
 
 #define BIGINT_LEN	128
-#define BIGINT_STR_LEN	1236
+#define BIGINT_STR_LEN	4096
 
 typedef int BigInt[BIGINT_LEN];
-typedef char BigIntStr[BIGINT_STR_LEN];
+typedef char BigIntStr[BIGINT_STR_LEN+1];
 
 /* Read a BigInt n in the base b. */
 /* The base can be 2, 8, 10 or 16. */
