@@ -283,22 +283,21 @@ BigIntXor:
 // BigIntShl: x = x << n
 // void BigIntShl(BigInt x, int n);
 BigIntShl:
-	xorq	%rax,%rax
 	xorq	%r10, %r10
-	xor		%ecx, %ecx
 
 	.L1shl:
 	movl (%rdi, %r10, 4), %ebx 
 	add %ecx, %ebx			# sum with the last shift bits
 	movl %esi, %ecx 
+
 	sal %cl, %ebx
 	mov %ebx, %ecx
 
-	addl $240, %ebx			# set zero, ebx += 0xf0.
-	movl %ebx, (%rdx, %r10, 4)	
+	andl $240, %ebx			# set zero, ebx &= 0xf0.
+	movl %ebx, (%rdi, %r10, 4)	
 
 	sar $4, %ecx			# get rest of bits 
-	
+
 	incq	%r10
 	cmpq	$128, %r10
 	jl	.L1shl
@@ -316,7 +315,7 @@ BigIntShar:
 	movl %esi, %ecx 
 	sar %cl, %ebx
 
-	movl %ebx, (%rdx, %r10, 4)	
+	movl %ebx, (%rdi, %r10, 4)	
 	
 	incq	%r10
 	cmpq	$128, %r10
