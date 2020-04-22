@@ -184,6 +184,25 @@ BigIntAssign:
 // BigIntAdd: xpy = x + y
 // void BigIntAdd(BigInt x, BigInt y, BigInt xpy);
 BigIntAdd:
+	movq	$128, %r10
+
+	.L1add:
+	movl	(%rdi, %r10, 4), %ecx
+	addb 	%bl, %cl				# sum carry
+	movl	(%rsi, %r10, 4), %eax
+
+	addl	%eax, %ecx	
+	cmpl	$15, %ecx				# if set carry out
+	setg 	%bl 
+	andl	$15, %ecx				# get 4 bits of sum
+	movl	%ecx, (%rdx, %r10, 4)
+
+	decq	%r10
+	cmpq	$0, %r10
+	jg	.L1add
+
+	addb 	%bl, %cl
+	
 	ret
 
 // BigIntSub: xmy = x - y
