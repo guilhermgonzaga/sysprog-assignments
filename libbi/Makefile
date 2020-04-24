@@ -7,7 +7,7 @@ CCOPTS = -Wall -g -c -I.
 
 # Makefile targets
 
-all: bitest libbi.a
+all: fibtest bitest libbi.a
 
 libbi.a: libbi.o
 	ar rcs libbi.a libbi.o
@@ -15,15 +15,21 @@ libbi.a: libbi.o
 bitest: bitest.o libbi.a
 	$(CC) -L. -o bitest bitest.o -lbi
 
+fibtest: fibtest.o libbi.a
+	$(CC) -L. -o fibtest fibtest.o -lbi -lgomp
+
 # Clean up!
 clean:
-	rm -f bitest.o bitest libbi.o libbi.a
+	@rm -fv fibtest.o fibtest bitest.o bitest libbi.o libbi.a
 
 # No, really, clean up!
 distclean: clean
-	rm -f *~
-	rm -f \#*
-	rm -f *.bak
+	@rm -fv *~
+	@rm -fv \#*
+	@rm -fv *.bak
+
+fibtest.o: fibtest.c
+	$(CC) $(CCOPTS) -fopenmp $<
 
 # How to compile a C file
 %.o:%.c
