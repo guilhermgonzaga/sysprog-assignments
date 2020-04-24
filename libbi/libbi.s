@@ -62,7 +62,93 @@ BigIntPrint:
 // The base can be 2, 8, 10 or 16.
 // char *BigIntToStr(BigInt n, char *buf, int b);
 BigIntToStr:
+	pushq	%r12
+	pushq	%rbx
+	subq	$1024, %rsp	# allocate 2 temporary BigInts
+	movq	%rdi, %r8	# store address of n
+	movq	%rsi, %rbx	# store address of buf
+	movq	%rdx, %r12	# store value of b
+
+	leaq	512(%rsp), %rdi
+	movq	$128, %rcx
+	movl	$0, %eax
+	rep	stosl
+	movl	%edx, 1020(%rsp)	# initialize temporary BigInt to b
+
+	movq	%r8, %rsi	# set parameters
+	movq	%rsp, %rdi
+	callq	BigIntAssign	# Make a copy of n to work on
+
+	cmpq	$10, %r12
+	jne	.C1tostr
+
+	cmpl	$0, (%rsp)
+	js	.C2tostr
+
+	.C1tostr:	# in case b != 10
+	leaq	512(%rsp), %rdx	# address of BigInt containing b
+	movq	%rbx, %rsi	# addrss of buf
+	movq	%rsp, %rdi	# address of temporary BigInt
+	callq	bi2all		# create string representation for n
+	movq	%rax, %r12	# offset of the string in buf
+
+	.C4tostr:
+	movq	$4096, %rdx
+	subq	%r12, %rdx	# length of string
+	leaq	(%rbx, %r12), %rsi	# start of string in buf
+	movq	%rbx, %rdi	# address of buffer
+
+	.L1tostr:	# move string to start of buf
+	movb	(%rsi), %cl
+	movb	%cl, (%rdi)
+	incq	%rsi		# next character address
+	incq	%rdi		# next character address
+	decq	%rdx
+	cmpq	$0, %rdx
+	jg	.L1tostr	# loop for all characters in string
+	movb	$0, (%rdi)	# add terminating null character
+
+	movq	$4096, %rdi
+	subq	%r12, %rdi	# length of string
+	cmpq	$0, %rdi
+	jle	.C3tostr	# loop only if string is not empty
+
+	addq	%rbx, %rdi	# end address of string in buf
+	movq	%rbx, %rax	# address of buf
+
+	.L2tostr:	# convert from digits to ASCII
+	movzbl	(%rax), %ecx	# get character from string
+	leal	48(%ecx), %esi	# character + '0'
+	leal	55(%ecx), %edx	# character + 'A' - 10
+	cmpb	$9, %cl
+	cmovle	%esi, %edx	# <- (character <= 9) ? (0 ~ 9) : (A ~ F)
+	movb	%dl, (%rax)	# update character in string
+
+	incq	%rax		# next character address
+	cmpq	%rax, %rdi
+	jg	.L2tostr	# until end of string
+
+	.C3tostr:	# end of function
+	movq	%rbx, %rax
+	addq	$1024, %rsp
+	popq	%rbx
+	popq	%r12
 	ret
+
+	.C2tostr:	# in case n is negative
+	movq	%rsp, %rdi	# address of temporary BigInt
+	callq	BigIntCompl	# get 2's complement for temporary
+
+	leaq	512(%rsp), %rdx	# address of BigInt containing b
+	movq	%rbx, %rsi	# addrss of buf
+	movq	%rsp, %rdi	# address of temporary BigInt
+	callq	bi2all		# create string representation for n
+
+	leaq	-1(%rax), %r12	# offset of the string in buf
+	movb	$-3, -1(%rbx, %rax)
+
+	jmp	.C4tostr
+
 
 // BigIntEq: returns x == y
 // int BigIntEq(BigInt x, BigInt y);
@@ -364,12 +450,12 @@ BigIntNeg:
 BigIntCompl:
 	pushq	%rbx
 	movq	%rdi, %rbx	# store address of x
-
 	subq	$512, %rsp	# allocate temporary BigInt on the stack
+
 	movq	%rsp, %rdi	# set address of temporary BigInt
-	movl	$64, %ecx
+	movq	$128, %rcx
 	movl	$0, %eax
-	rep	stosq
+	rep	stosl
 	movl	$1, 508(%rsp)	# initialize temporary BigInt to 1
 
 	movq	%rbx, %rdi	# set parameter
@@ -382,4 +468,66 @@ BigIntCompl:
 
 	addq	$512, %rsp
 	popq	%rbx
+	ret
+
+
+// bi2all: convert BigInt to BigIntStr in base 2, 8, 10 or 16.
+// Destroys input num.
+// int bi2all(BigInt num, BigIntStr buffer, BigInt base);
+bi2all:
+	pushq	%r13
+	pushq	%r12
+	pushq	%rbp
+	pushq	%rbx
+	subq	$1032, %rsp	# space for 2 BigInts
+
+	movq	%rdi, %rbx	# store address of num
+	movq	%rdx, %r13	# store address of base
+
+	movq	%rsp, %rdi	# address of the BigInts
+	movq	$256, %rcx	# 128 quadwords
+	movl	$0, %eax
+	rep	stosl		# initialize 2 BigInts to zero
+
+	// movq	%rsi, %rdi	# address of buffer
+	// movq	$1024, %rcx
+	// movl	$0, %eax
+	// rep	stosl		# initialize buffer to zero
+
+	leaq	4095(%rsi), %rbp
+	movq	$4095, %r12	# end index of buffer
+	// movq	$0, 1(%rbp)	# add terminating null character
+
+	.L1bi2all:	# fill buffer with digits
+	leaq	512(%rsp), %rsi	# set parameters
+	movq	%rbx, %rdi
+	callq	BigIntEq	# compare num to zero
+	testq	%rax, %rax
+	jne	.C1bi2all	# loop while num != 0
+
+	movq	%rsp, %rdx	# set parameters
+	movq	%r13, %rsi
+	movq	%rbx, %rdi
+	callq	BigIntMod	# temporary <- next digit
+
+	movl	508(%rsp), %eax	# next digit
+	movb	%al, (%rbp)	# buffer <- next digit
+
+	movq	%rbx, %rdx	# set parameters
+	movq	%r13, %rsi
+	movq	%rbx, %rdi
+	callq	BigIntMul	# num <- num * base
+
+	decq	%r12
+	decq	%rbp
+	cmpq	$0, %r12
+	jge	.L1bi2all	# loop for all digits in base
+
+	.C1bi2all:	# end of function
+	movq	%r12, %rax	# start index of the string in buffer
+	addq	$1032, %rsp
+	popq	%rbx
+	popq	%rbp
+	popq	%r12
+	popq	%r13
 	ret
