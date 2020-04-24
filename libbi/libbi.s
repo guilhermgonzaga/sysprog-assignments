@@ -273,21 +273,17 @@ BigIntAdd:
 	movq	$128, %r10
 
 	.L1add:
-	movl	(%rdi, %r10, 4), %ecx
+	movl    (%rdi, %r10, 4), %ecx
 	addb 	%bl, %cl				# sum carry
 	movl	(%rsi, %r10, 4), %eax
 
-	addl	%eax, %ecx	
-	cmpl	$15, %ecx				# if set carry out
-	setg 	%bl 
-	andl	$15, %ecx				# get 4 bits of sum
+	addl	%eax, %ecx				
+	setb 	%bl 					# set carry out	
 	movl	%ecx, (%rdx, %r10, 4)
 
 	decq	%r10
 	cmpq	$0, %r10
 	jg	.L1add
-
-	addb 	%bl, %cl
 	
 	ret
 
@@ -388,40 +384,48 @@ BigIntXor:
 // BigIntShl: x = x << n
 // void BigIntShl(BigInt x, int n);
 BigIntShl:
-	xorq	%r10, %r10
+	movq	$128, %r10
+	xorq	%r8, %r8				# aux for carry of shift
 
 	.L1shl:
-	movl (%rdi, %r10, 4), %ebx 
-	add %ecx, %ebx			# sum with the last shift bits
-	movl %esi, %ecx 
+	movl	(%rdi, %r10, 4), %ebx
+	movl	%ebx, %edx 				# aux of %ebx
+	movl	%esi, %ecx
 
-	sal %cl, %ebx
-	mov %ebx, %ecx
+	shl 	%cl, %ebx
+	rol 	%cl, %edx		
+	sub		%ebx, %edx				# calculates carry bits
 
-	andl $240, %ebx			# set zero, ebx &= 0xf0.
-	movl %ebx, (%rdi, %r10, 4)	
+	add		%r8d, %ebx				# sum with carry
+	movl 	%ebx, (%rdi, %r10, 4)	
+	movl	%edx, %r8d				# Set carry in r8d
 
-	sar $4, %ecx			# get rest of bits 
-
-	incq	%r10
-	cmpq	$128, %r10
-	jl	.L1shl
-
+	decq	%r10
+	cmpq	$0, %r10
+	jg	.L1shl
+	
 	ret
+
 
 // BigIntShar: x = x >> n
 // void BigIntShar(BigInt x, int n);
 BigIntShar:
-	xorq	%rax,%rax
-	xor		%ecx, %ecx
+	xorq	%r10, %r10
+	xorq	%r8, %r8				# aux for carry of shift
 
 	.L1shr:
-	movl (%rdi, %r10, 4), %ebx 
-	movl %esi, %ecx 
-	sar %cl, %ebx
+	movl 	(%rdi, %r10, 4), %ebx 
+	movl	%ebx, %edx 				# aux of %ebx
+	movl	%esi, %ecx
 
-	movl %ebx, (%rdi, %r10, 4)	
-	
+	shr 	%cl, %ebx
+	ror 	%cl, %edx				
+	sub		%ebx, %edx				# calculates carry bits
+
+	add		%r8d, %ebx				# sum with carry
+	movl 	%ebx, (%rdi, %r10, 4)	
+	movl	%edx, %r8d				# Set carry in r8d
+
 	incq	%r10
 	cmpq	$128, %r10
 	jl	.L1shr
