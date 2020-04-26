@@ -97,6 +97,7 @@ BigIntToStr:
 	subq	%r12, %rdx	# length of string
 	leaq	(%rbx, %r12), %rsi	# start of string in buf
 	movq	%rbx, %rdi	# address of buffer
+	xorq	%rcx, %rcx
 
 	.L1tostr:	# move string to start of buf
 	movb	(%rsi), %cl
@@ -106,7 +107,6 @@ BigIntToStr:
 	decq	%rdx
 	cmpq	$0, %rdx
 	jg	.L1tostr	# loop for all characters in string
-	movb	$0, (%rdi)	# add terminating null character
 
 	movq	$4096, %rdi
 	subq	%r12, %rdi	# length of string
@@ -127,9 +127,10 @@ BigIntToStr:
 	incq	%rax		# next character address
 	cmpq	%rax, %rdi
 	jg	.L2tostr	# until end of string
+	movb	$0, (%rdi)	# add terminating null character
 
 	.C3tostr:	# end of function
-	movq	%rbx, %rax
+	movq	%rbx, %rax	# return address of buf
 	addq	$1024, %rsp
 	popq	%rbx
 	popq	%r12
@@ -267,25 +268,32 @@ BigIntAssign:
 
 	ret
 
+
 // BigIntAdd: xpy = x + y
 // void BigIntAdd(BigInt x, BigInt y, BigInt xpy);
 BigIntAdd:
-	movq	$128, %r10
+	xorq	%r8, %r8
+	movq	$127, %r10		# index
 
 	.L1add:
-	movl    (%rdi, %r10, 4), %ecx
-	addb 	%bl, %cl				# sum carry
+	movl	(%rdi, %r10, 4), %ecx
 	movl	(%rsi, %r10, 4), %eax
 
-	addl	%eax, %ecx				
-	setb 	%bl 					# set carry out	
-	movl	%ecx, (%rdx, %r10, 4)
+	addl	%r8d, %ecx		# sum carry in
+	setc	%r8b			# set carry out
+	addl	%eax, %ecx		# add numbers
+	jnc	.C1add
+	setc	%r8b			# set carry out
+
+	.C1add:
+	movl	%ecx, (%rdx, %r10, 4)	# store result
 
 	decq	%r10
 	cmpq	$0, %r10
-	jg	.L1add
-	
+	jge	.L1add
+
 	ret
+
 
 // BigIntSub: xmy = x - y
 // void BigIntSub(BigInt x, BigInt y, BigInt xmy);
@@ -296,16 +304,16 @@ BigIntSub:
 	movq	%rdi, %rbp	# store address of x
 	movq	%rsi, %rbx	# store address of y
 	movq	%rdx, %r12	# store address of xmy
-
 	subq	$512, %rsp	# allocate temporary BigInt on the stack
+
 	movq	%rsp, %rdi	# set parameter
 	call	BigIntAssign	# initialize temporary BigInt to y
 
-	movq	%rsi, %rdi
+	movq	%rsp, %rdi
 	call	BigIntCompl	# get 2's complement for temporary (-y)
 
 	movq	%r12, %rdx	# set parameters
-	movq	%rbx, %rsi
+	movq	%rsp, %rsi
 	movq	%rbp, %rdi
 	call	BigIntAdd	# x += -y
 
@@ -526,6 +534,8 @@ bi2all:
 	decq	%rbp
 	cmpq	$0, %r12
 	jge	.L1bi2all	# loop for all digits in base
+
+	addq	$1, %r12	# Fix to index on the first character
 
 	.C1bi2all:	# end of function
 	movq	%r12, %rax	# start index of the string in buffer
