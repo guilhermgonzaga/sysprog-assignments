@@ -174,82 +174,67 @@ BigIntEq:
 // BigIntLT: returns x < y
 // int BigIntLT(BigInt x, BigInt y);
 BigIntLT:
-	xorq	%rax,%rax
-	xorq	%r10, %r10
-
-	movl (%rdi), %ecx 
-	testl	%ecx, %ecx
-	je .L1ltneg
-	movl	(%rsi), %edx
-	testl	%ecx, %edx
-	je .L1ltneg
-
-	.L1lt:
-	movl    (%rdi, %r10, 4), %ecx
-	movl	(%rsi, %r10, 4), %edx
-	cmpl	%ecx, %edx
-	jg	.C1lt
-
-	incq	%r10
-	cmpq	$128, %r10
-	jl	.L1lt
-
-	movq	$1, %rax
-	jg	.C1lt
-
-	.L1ltneg:
-	movl    (%rdi, %r10, 4), %ecx
-	movl	(%rsi, %r10, 4), %edx
-	cmpl	%ecx, %edx
-	jl	.C1lt
-
-	incq	%r10
-	cmpq	$128, %r10
-	jl	.L1ltneg
-
-	movq	$1, %rax
-
-	.C1lt:
-	ret
+        subq    $8, %rsp
+        movq    %rdi, %rax
+        movq    %rsi, %rdi
+        movq    %rax, %rsi
+        movl    $0, %eax
+        call    BigIntGT
+        addq    $8, %rsp
+        ret
 
 // BigIntGT: returns x > y
 // int BigIntGT(BigInt x, BigInt y);
 BigIntGT:
-	xorq	%rax,%rax
-	xorq	%r10, %r10
-
-	movl	(%rdi), %ecx
-	testl	%ecx, %ecx
-	je .L1lgneg
-	movl	(%rsi), %edx
-	testl	%edx, %edx
-	je .L1lgneg
-
-	.L1gt:
-	movl    (%rdi, %r10, 4), %ecx
-	movl	(%rsi, %r10, 4), %edx
-	cmpl	%ecx, %edx
-	jl	.C1gt
-
-	incq	%r10
-	cmpq	$128, %r10
-	jl	.L1gt
-
-	.L1lgneg:
-	movl    (%rdi, %r10, 4), %ecx
-	movl	(%rsi, %r10, 4), %edx
-	cmpl	%ecx, %edx
-	jl	.C1gt
-
-	incq	%r10
-	cmpq	$128, %r10
-	jl	.L1lgneg
-
-	movq	$1, %rax
-
-	movq	$1, %rax
-	.C1gt:
-	ret
+BigIntGT:
+        pushq   %rbx
+        subq    $1024, %rsp
+        movq    %rsi, %rbx
+        movq    %rdi, %rsi
+        leaq    512(%rsp), %rdi
+        movl    $0, %eax
+        call    BigIntAssign
+        movq    %rbx, %rsi
+        movq    %rsp, %rdi
+        movl    $0, %eax
+        call    BigIntAssign
+        movl    512(%rsp), %eax
+        testl   %eax, %eax
+        js      .L2gt
+        cmpl    $0, (%rsp)
+        js      .L7gt
+.L2gt:
+        testl   %eax, %eax
+        js      .L12gt
+        movl    $0, %eax
+.L5gt:
+        cmpq    $127, %rax
+        jg      .L13gt
+        movl    (%rsp,%rax,4), %edx
+        cmpl    %edx, 512(%rsp,%rax,4)
+        ja      .L10gt
+        addq    $1, %rax
+        jmp     .L5gt
+.L12gt:
+        cmpl    $0, (%rsp)
+        jns     .L9gt
+        movl    $0, %eax
+        jmp     .L5gt
+.L13gt:
+        movl    $0, %eax
+        jmp     .L1gt
+.L7gt:
+        movl    $1, %eax
+        jmp     .L1gt
+.L9gt:
+        movl    $0, %eax
+        jmp     .L1gt
+.L10gt:
+        movl    $1, %eax
+.L1gt:
+        addq    $1024, %rsp
+        popq    %rbx
+        ret
 
 
 
