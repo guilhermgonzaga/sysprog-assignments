@@ -237,7 +237,6 @@ BigIntGT:
         ret
 
 
-
 // BigIntAssign: x = y
 // void BigIntAssign(BigInt x, BigInt y);
 BigIntAssign:
@@ -312,7 +311,82 @@ BigIntSub:
 // BigIntMul: xty = x * y
 // void BigIntMul(BigInt x, BigInt y, BigInt xty);
 BigIntMul:
-	ret
+        pushq   %rbp
+        pushq   %rbx
+        subq    $1544, %rsp
+        movq    %rdi, %r8
+        movq    %rsi, %rbp
+        movq    %rdx, %rbx
+        leaq    1024(%rsp), %rdi
+        movl    $64, %ecx
+        movl    $0, %eax
+        rep stosq
+        movq    %r8, %rsi
+        leaq    512(%rsp), %rdi
+        call    BigIntAssign
+        movq    %rbp, %rsi
+        movq    %rsp, %rdi
+        movl    $0, %eax
+        call    BigIntAssign
+        leaq    1024(%rsp), %rsi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntAssign
+        cmpl    $0, (%rsp)
+        js      .L10mul
+        movl    $0, %ebp
+.L2mul:
+        cmpl    $0, 512(%rsp)
+        jns     .L5mul
+        xorq    $1, %rbp
+        leaq    512(%rsp), %rdi
+        movl    $0, %eax
+        call    BigIntCompl
+        jmp     .L5mul
+.L10mul:
+        movq    %rsp, %rdi
+        movl    $0, %eax
+        call    BigIntCompl
+        movl    $1, %ebp
+        jmp     .L2mul
+.L12mul:
+        movq    %rbx, %rdx
+        leaq    512(%rsp), %rsi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntAdd
+.L4mul:
+        movl    $1, %esi
+        movq    %rsp, %rdi
+        movl    $0, %eax
+        call    BigIntShar
+        movl    $1, %esi
+        leaq    512(%rsp), %rdi
+        movl    $0, %eax
+        call    BigIntShl
+.L5mul:
+        leaq    1024(%rsp), %rsi
+        movq    %rsp, %rdi
+        movl    $0, %eax
+        call    BigIntEq
+        testl   %eax, %eax
+        jne     .L11mul
+        testb   $1, 508(%rsp)
+        je      .L4mul
+        jmp     .L12mul
+.L11mul:
+        testq   %rbp, %rbp
+        jne     .L13mul
+.L1mul:
+        addq    $1544, %rsp
+        popq    %rbx
+        popq    %rbp
+        ret
+.L13mul:
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntCompl
+        jmp     .L1mul
 
 // BigIntDiv: xdy = x / y
 // void BigIntDiv(BigInt x, BigInt y, BigInt xdy);
@@ -377,7 +451,7 @@ BigIntXor:
 // BigIntShl: x = x << n
 // void BigIntShl(BigInt x, int n);
 BigIntShl:
-	movq	$128, %r10
+	movq	$127, %r10				# index
 	xorq	%r8, %r8				# aux for carry of shift
 
 	.L1shl:
@@ -466,7 +540,6 @@ BigIntCompl:
 	addq	$512, %rsp
 	popq	%rbx
 	ret
-
 
 // bi2all: convert BigInt to BigIntStr in base 2, 8, 10 or 16.
 // Destroys input num.
