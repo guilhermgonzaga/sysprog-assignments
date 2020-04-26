@@ -14,30 +14,101 @@
 // int BigIntRead(BigInt n, int b);
 // Must create a local buffer for the input string.
 BigIntRead:
+	pushq	%r13
+	pushq	%r12
 	pushq	%rbp
-	subq	$1240,%rsp	# Allocate a buffer for 1236-char string
-				# Stack must be 16-byte aligned
-				# 1236+8 = 1244, but 1244 is not
-				# multiple of 16. 1240+8=1248, which
-				# is multiple of 16.
+	pushq	%rbx
+	subq	$5656, %rsp
+	movq	%rdi, %rbp	# store address of n
+	movq	%rsi, %rbx	# store value of b
 
-	movl	$0,%eax		# sys_read
-	movl	$0,%edi		# Standard input
-	leaq	(%rsp),%rsi	# Address of the local buffer
-	movl	$1235,%edx	# Maximum length of the input string
+	xorq	%rax, %rax
+
+	leaq	1536(%rsp), %rdi
+	movq	$1024, %rcx
+	rep	stosl
+	movb	$0, (%rdi)	#initialize buffer to all zeros
+
+	leaq	1024(%rsp), %rdi
+	movq	$128, %rcx
+	rep	stosl
+	movl	%ebx, 1532(%rsp)	# initialize auxiliary BigInt to b
+
+	leaq	512(%rsp), %rdi
+	movq	$128, %rcx
+	rep	stosl
+	movl	$1, 1020(%rsp)	# initialize auxiliary BigInt to 1
+
+	xorq	%rax, %rax	# syscall number for read
+	xorq	%rdi, %rdi	# stdin file descriptor
+	leaq	1536(%rsp), %rsi	# address of buffer
+	movq	$4097, %rdx	# size of buffer
 	syscall
 
-	# After reading the input string, you must check if
-	# it is valid. For example, a base-2 number should have
-	# only the digits [0-1], a base-10 number should have
-	# only the digits 0-9, and so on.
+	movzbl	1536(%rsp), %r13d
+	cmpb	$45, %r13b
+	sete	%r12b
+	movq	%rbx, %rsi
+	leaq	1536(%rsp), %rdi
+	call	sanitizeInput
+	testq	%rax, %rax
+	je	.L20read	# input invalid if string is empty
 
+	movzbl	%r12b, %r12d
+	leaq	-1(%rax), %rbx
 
-	# deallocate the local variable and restore the stack
-	# to where it was at the beginning of the function
-	addq	$1240,%rsp
+	.L1read:	# store translated input in n
+	cmpq	%r12, %rbx
+	jl	.L23read
+
+	xorl	%eax, %eax
+	movq	%rsp, %rdi
+	movq	$128, %rcx
+	rep	stosl
+	movsbl	1536(%rsp, %rbx), %eax
+	movl	%eax, 508(%rsp)	# initialize temporary BigInt to next digit
+
+	movq	%rsp, %rdx	# set parameters
+	leaq	512(%rsp), %rsi
+	movq	%rsp, %rdi
+	call	BigIntMul	# get positional value of digit
+
+	movq	%rbp, %rdx	# set parameters
+	movq	%rsp, %rsi
+	movq	%rbp, %rdi
+	call	BigIntAdd	# add value of digit to n
+
+	leaq	512(%rsp), %rdx
+	leaq	1024(%rsp), %rsi
+	movq	%rdx, %rdi
+	call	BigIntMul	# update position
+
+	decq	%rbx
+	jmp	.L1read		# loop for all characters in string
+
+	.L23read:
+	cmpb	$45, %r13b
+	je	.L24read
+	movl	$1, %eax
+
+	.L16read:	# end of function
+	addq	$5656, %rsp
+	popq	%rbx
 	popq	%rbp
+	popq	%r12
+	popq	%r13
 	ret
+
+	.L24read:	# fix for negative input
+	movq	%rbp, %rdi
+	call	BigIntCompl	# get two's complement of n
+	movl	$1, %eax	# valid input
+	jmp	.L16read
+
+	.L20read:	# fix for empty input
+	movl	$0, %eax	# invalid input
+	jmp	.L16read
+
 
 // Print a BigInt n in the base b.
 // The base can be 2, 8, 10 or 16.
@@ -175,17 +246,17 @@ BigIntEq:
 // int BigIntLT(BigInt x, BigInt y);
 BigIntLT:
         subq    $8, %rsp
+
         movq    %rdi, %rax
         movq    %rsi, %rdi
         movq    %rax, %rsi
-        movl    $0, %eax
         call    BigIntGT
+
         addq    $8, %rsp
         ret
 
 // BigIntGT: returns x > y
 // int BigIntGT(BigInt x, BigInt y);
-BigIntGT:
 BigIntGT:
         pushq   %rbx
         subq    $1024, %rsp
@@ -267,7 +338,7 @@ BigIntAdd:
 	setc	%r8b			# set carry out
 	addl	%eax, %ecx		# add numbers
 	jnc	.C1add
-	setc	%r8b			# set carry out
+	movb	$1, %r8b		# set carry out
 
 	.C1add:
 	movl	%ecx, (%rdx, %r10, 4)	# store result
@@ -602,4 +673,72 @@ bi2all:
 	popq	%rbp
 	popq	%r12
 	popq	%r13
+	ret
+
+
+// sanitizeInput: verify input and make it in the range [0, base).
+// Returns the index one past the end of the string.
+// int sanitizeInput(BigIntStr buffer, int base);
+sanitizeInput:
+	cmpq	$10, %rsi
+	je	.C2sanInput	# check negative input for base 10 only
+
+	movq	%rdi, %rax	# iterator to buffer
+	.C1sanInput:	# verify empty input
+	cmpb	$0, (%rax)
+	jne	.L4sanInput
+	movl	$0, %eax	# invalid input
+	ret
+
+	.C2sanInput:	# base 10
+	cmpb	$45, (%rdi)
+	je	.C3sanInput	# jump if first character is '-'
+	movq	%rdi, %rax	# iterator to buffer
+	jmp	.C1sanInput
+
+	.C3sanInput:	# negative input
+	leaq	1(%rdi), %rax	# fix for leading minus sign
+	jmp	.C1sanInput
+
+	.L6sanInput:
+	leal	-97(%rdx), %ecx
+	cmpb	$5, %cl
+	ja	.L5sanInput
+	subl	$39, %edx
+	movb	%dl, (%rax)
+
+	.L5sanInput:
+	movzbl	(%rax), %ecx
+	leal	-48(%rcx), %edx
+	movb	%dl, (%rax)
+	testb	%dl, %dl
+	js	.C4sanInput	# end function if character < 0
+	movsbq	%dl, %rdx
+	cmpq	%rsi, %rdx
+	jge	.C4sanInput	# end function if character >= base
+	incq	%rax
+
+	.L4sanInput:
+	leaq	4096(%rdi), %rdx
+	cmpq	%rax, %rdx
+	jbe	.C5sanInput
+	movzbl	(%rax), %edx
+	testb	%dl, %dl
+	je	.C5sanInput
+	cmpq	$16, %rsi
+	jne	.L5sanInput
+
+	leal	-65(%rdx), %ecx
+	cmpb	$5, %cl
+	ja	.L6sanInput
+	subl	$7, %edx
+	movb	%dl, (%rax)
+	jmp	.L5sanInput
+
+	.C5sanInput:	# end of function
+	subq	%rdi, %rax	# index one past the end of string
+	ret
+
+	.C4sanInput:	# fix for stray characters
+	movl	$0, %eax
 	ret
