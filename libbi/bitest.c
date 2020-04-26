@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 		printf("Error: base must be 2, 8, 10 or 16\n");
 		return 1;
 	}
+
 	printf("\nEnter the value of x using base %d:\n", base);
 	BigIntRead(x, base);
 	printf("\nEnter the value of y using base %d:\n", base);
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
 
 	BigIntAssign(r, y);
 	BigIntNeg(r);
-	printf("\nx=%s, ~x %s\n", BigIntToStr(y, ys, base),
+	printf("\nx=%s, ~x=%s\n", BigIntToStr(y, ys, base),
 	       BigIntToStr(r, rs, base));
 
 	return 0;

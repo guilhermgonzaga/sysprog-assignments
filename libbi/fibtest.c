@@ -3,7 +3,7 @@
 #include <BigInt.h>
 
 #define FIB_LIMIT 5500
-#define OPTIMIZED
+// #define OPTIMIZED
 
 #ifdef OPTIMIZED
 	#include <omp.h>
@@ -15,11 +15,11 @@ void fib(int n) {
 	BigInt b = {0, [BIGINT_LEN-1] = 1};
 	BigInt c;
 
-	// for (int i = 1; i < n; i++) {
-	// 	BigIntAdd(a, b, c);
-	// 	BigIntAssign(a, b);
-	// 	BigIntAssign(b, c);
-	// }
+	for (int i = 1; i < n; i++) {
+		BigIntAdd(a, b, c);
+		BigIntAssign(a, b);
+		BigIntAssign(b, c);
+	}
 }
 
 int main(int argc, const char *argv[]) {
