@@ -258,54 +258,46 @@ BigIntLT:
 // BigIntGT: returns x > y
 // int BigIntGT(BigInt x, BigInt y);
 BigIntGT:
-        pushq   %rbx
-        subq    $1024, %rsp
-        movq    %rsi, %rbx
-        movq    %rdi, %rsi
-        leaq    512(%rsp), %rdi
-        movl    $0, %eax
-        call    BigIntAssign
-        movq    %rbx, %rsi
-        movq    %rsp, %rdi
-        movl    $0, %eax
-        call    BigIntAssign
-        movl    512(%rsp), %eax
-        testl   %eax, %eax
-        js      .L2gt
-        cmpl    $0, (%rsp)
-        js      .L7gt
-.L2gt:
-        testl   %eax, %eax
-        js      .L12gt
-        movl    $0, %eax
-.L5gt:
-        cmpq    $127, %rax
-        jg      .L13gt
-        movl    (%rsp,%rax,4), %edx
-        cmpl    %edx, 512(%rsp,%rax,4)
-        ja      .L10gt
-        addq    $1, %rax
-        jmp     .L5gt
-.L12gt:
-        cmpl    $0, (%rsp)
-        jns     .L9gt
-        movl    $0, %eax
-        jmp     .L5gt
-.L13gt:
-        movl    $0, %eax
-        jmp     .L1gt
-.L7gt:
-        movl    $1, %eax
-        jmp     .L1gt
-.L9gt:
-        movl    $0, %eax
-        jmp     .L1gt
-.L10gt:
-        movl    $1, %eax
-.L1gt:
-        addq    $1024, %rsp
-        popq    %rbx
-        ret
+	cmpl	$0, (%rdi)
+	js	.C1gt		# in case x < 0
+
+	movq	$1, %rax	# true by default
+	cmpl	$0, (%rsi)
+	js	.C2gt		# in case y < 0
+
+	xorq	%rax, %rax
+	.L1gt:
+	movl	(%rdi, %rax, 4), %ecx
+	movl	(%rsi, %rax, 4), %edx
+
+	cmpl	%edx, %ecx
+	ja	.C3gt		# jump if x > y
+	jb	.C4gt		# jump if x < y
+
+	incq	%rax
+	cmpq	$128, %rax
+	jl	.L1gt		# loop for all elements in BigInt
+
+	movq	$0, %rax	# return false
+	ret
+
+	.C1gt:
+	movq	$0, %rax
+	cmpl	$0, (%rsi)
+	jns	.C2gt		# jump if y >= 0
+
+	xorq	%rax, %rax	# initialize
+	jmp	.L1gt
+
+	.C3gt:
+	movq	$1, %rax	# return true
+	ret
+
+	.C4gt:
+	movq	$0, %rax	# return false
+
+	.C2gt:
+	ret
 
 
 // BigIntAssign: x = y
