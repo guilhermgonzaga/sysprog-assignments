@@ -22,6 +22,7 @@ BigIntRead:
 	movq	%rdi, %rbp	# store address of n
 	movq	%rsi, %rbx	# store value of b
 
+	xorq	%r12, %r12
 	xorq	%rax, %rax
 
 	leaq	1536(%rsp), %rdi
@@ -48,18 +49,20 @@ BigIntRead:
 	movzbl	1536(%rsp), %r13d
 	cmpb	$45, %r13b
 	sete	%r12b
-	movq	%rbx, %rsi
+
+	movq	%rbx, %rdx	# set parameters
+	leaq	-1(%rax), %rsi	# length of input string, negative on error
 	leaq	1536(%rsp), %rdi
 	call	sanitizeInput
 	testq	%rax, %rax
-	je	.L20read	# input invalid if string is empty
+	jz	.C2read		# invalid input
 
 	movzbl	%r12b, %r12d
 	leaq	-1(%rax), %rbx
 
 	.L1read:	# store translated input in n
 	cmpq	%r12, %rbx
-	jl	.L23read
+	jl	.C1read
 
 	xorl	%eax, %eax
 	movq	%rsp, %rdi
@@ -86,12 +89,12 @@ BigIntRead:
 	decq	%rbx
 	jmp	.L1read		# loop for all characters in string
 
-	.L23read:
-	cmpb	$45, %r13b
-	je	.L24read
-	movl	$1, %eax
+	.C1read:
+	cmpb	$45, %r13b	# check if leading character is '-'
+	je	.C3read		# correct for negative input
+	movl	$1, %eax	# valid input
 
-	.L16read:	# end of function
+	.C4read:	# end of function
 	addq	$5656, %rsp
 	popq	%rbx
 	popq	%rbp
@@ -99,15 +102,15 @@ BigIntRead:
 	popq	%r13
 	ret
 
-	.L24read:	# fix for negative input
+	.C3read:	# fix for negative input
 	movq	%rbp, %rdi
 	call	BigIntCompl	# get two's complement of n
 	movl	$1, %eax	# valid input
-	jmp	.L16read
+	jmp	.C4read
 
-	.L20read:	# fix for empty input
+	.C2read:	# fix for empty input
 	movl	$0, %eax	# invalid input
-	jmp	.L16read
+	jmp	.C4read
 
 
 // Print a BigInt n in the base b.
@@ -511,56 +514,62 @@ BigIntXor:
 	jl	.L1xor
 	ret
 
+
 // BigIntShl: x = x << n
 // void BigIntShl(BigInt x, int n);
 BigIntShl:
-	movq	$127, %r10				# index
-	xorq	%r8, %r8				# aux for carry of shift
+	pushq	%rbx
+	movq	$127, %r10			# index
+	xorq	%r8, %r8			# aux for carry of shift
 
 	.L1shl:
 	movl	(%rdi, %r10, 4), %ebx
-	movl	%ebx, %edx 				# aux of %ebx
+	movl	%ebx, %edx 			# aux of %ebx
 	movl	%esi, %ecx
 
-	shl 	%cl, %ebx
-	rol 	%cl, %edx		
-	sub		%ebx, %edx				# calculates carry bits
+	shl	%cl, %ebx
+	rol	%cl, %edx		
+	sub	%ebx, %edx			# calculates carry bits
 
-	add		%r8d, %ebx				# sum with carry
-	movl 	%ebx, (%rdi, %r10, 4)	
-	movl	%edx, %r8d				# Set carry in r8d
+	add	%r8d, %ebx			# sum with carry
+	movl	%ebx, (%rdi, %r10, 4)
+	movl	%edx, %r8d			# set carry
 
 	decq	%r10
 	cmpq	$0, %r10
 	jg	.L1shl
-	
+
+	popq	%rbx
 	ret
 
 
 // BigIntShar: x = x >> n
 // void BigIntShar(BigInt x, int n);
 BigIntShar:
-	xorq	%r10, %r10
-	xorq	%r8, %r8				# aux for carry of shift
+	pushq	%rbx
+	xorq	%r10, %r10			# index
+	xorq	%r8, %r8			# aux for carry of shift
 
 	.L1shr:
-	movl 	(%rdi, %r10, 4), %ebx 
-	movl	%ebx, %edx 				# aux of %ebx
+	movl	(%rdi, %r10, 4), %ebx 
+	movl	%ebx, %edx 			# aux of %ebx
 	movl	%esi, %ecx
 
-	shr 	%cl, %ebx
-	ror 	%cl, %edx				
-	sub		%ebx, %edx				# calculates carry bits
+	shr	%cl, %ebx
+	ror	%cl, %edx
+	sub	%ebx, %edx			# calculates carry bits
 
-	add		%r8d, %ebx				# sum with carry
-	movl 	%ebx, (%rdi, %r10, 4)	
-	movl	%edx, %r8d				# Set carry in r8d
+	add	%r8d, %ebx			# sum with carry
+	movl	%ebx, (%rdi, %r10, 4)
+	movl	%edx, %r8d			# set carry
 
 	incq	%r10
 	cmpq	$128, %r10
 	jl	.L1shr
 
+	popq	%rbx
 	ret
+
 
 // BigIntNeg: x = ~x
 // void BigIntNeg(BigInt x);
@@ -598,7 +607,7 @@ BigIntCompl:
 	movq	%rbx, %rdx	# set parameters
 	movq	%rsp, %rsi
 	movq	%rbx, %rdi
-	call	BigIntAdd
+	call	BigIntAdd	# add 1 to ~x
 
 	addq	$512, %rsp
 	popq	%rbx
@@ -618,7 +627,7 @@ bi2all:
 	movq	%rdx, %r13	# store address of base
 
 	movq	%rsp, %rdi	# address of the BigInts
-	movq	$256, %rcx	# 128 quadwords
+	movq	$256, %rcx
 	movl	$0, %eax
 	rep	stosl		# initialize 2 BigInts to zero
 
@@ -670,67 +679,63 @@ bi2all:
 
 // sanitizeInput: verify input and make it in the range [0, base).
 // Returns the index one past the end of the string.
-// int sanitizeInput(BigIntStr buffer, int base);
+// int sanitizeInput(BigIntStr buffer, int length, int base);
 sanitizeInput:
-	cmpq	$10, %rsi
-	je	.C2sanInput	# check negative input for base 10 only
+	movq	%rdi, %r8	# store address of buffer
 
-	movq	%rdi, %rax	# iterator to buffer
-	.C1sanInput:	# verify empty input
-	cmpb	$0, (%rax)
-	jne	.L4sanInput
-	movl	$0, %eax	# invalid input
-	ret
+	testq	%rsi, %rsi
+	js	.C2sanInput	# for case of failed read
 
-	.C2sanInput:	# base 10
 	cmpb	$45, (%rdi)
-	je	.C3sanInput	# jump if first character is '-'
-	movq	%rdi, %rax	# iterator to buffer
-	jmp	.C1sanInput
+	je	.C1sanInput	# check for negative input
+	jmp	.C3sanInput	# start loop
 
-	.C3sanInput:	# negative input
-	leaq	1(%rdi), %rax	# fix for leading minus sign
-	jmp	.C1sanInput
+	.C1sanInput:
+	cmpq	$10, %rdx	# negative input only in base 10
+	jne	.C2sanInput
+	incq	%r8		# skip leading minus sign
+	jmp	.C3sanInput	# start loop
 
-	.L6sanInput:
-	leal	-97(%rdx), %ecx
+	.L1sanInput:
+	leal	-97(%rax), %ecx
 	cmpb	$5, %cl
-	ja	.L5sanInput
-	subl	$39, %edx
-	movb	%dl, (%rax)
+	ja	.L2sanInput	# check valid hexadecimal digit
+	subl	$39, %eax	# character - 10 - '0' + 'a'
+	movb	%al, (%r8)
 
-	.L5sanInput:
-	movzbl	(%rax), %ecx
-	leal	-48(%rcx), %edx
-	movb	%dl, (%rax)
-	testb	%dl, %dl
-	js	.C4sanInput	# end function if character < 0
-	movsbq	%dl, %rdx
-	cmpq	%rsi, %rdx
-	jge	.C4sanInput	# end function if character >= base
-	incq	%rax
+	.L2sanInput:	# set characters in range [0, base)
+	movzbl	(%r8), %eax
+	leal	-48(%rax), %ecx
+	movb	%cl, (%r8)
+	testb	%cl, %cl
+	js	.C2sanInput	# invalid if digit < 0
+	movsbq	%cl, %rcx
+	cmpq	%rdx, %rcx
+	jge	.C2sanInput	# invalid if digit >= base
+	incq	%r8		# next character
 
-	.L4sanInput:
-	leaq	4096(%rdi), %rdx
-	cmpq	%rax, %rdx
-	jbe	.C5sanInput
-	movzbl	(%rax), %edx
-	testb	%dl, %dl
-	je	.C5sanInput
-	cmpq	$16, %rsi
-	jne	.L5sanInput
+	.C3sanInput:
+	leaq	(%rdi, %rsi), %rcx	# end of input in buffer
+	cmpq	%r8, %rcx
+	jbe	.C4sanInput	# stop at the end of the input
 
-	leal	-65(%rdx), %ecx
+	cmpq	$16, %rdx	# special case for base 16
+	jne	.L2sanInput
+
+	movzbl	(%r8), %eax
+	leal	-65(%rax), %ecx	# special case for characters A ~ F
 	cmpb	$5, %cl
-	ja	.L6sanInput
-	subl	$7, %edx
-	movb	%dl, (%rax)
-	jmp	.L5sanInput
+	ja	.L1sanInput
 
-	.C5sanInput:	# end of function
-	subq	%rdi, %rax	# index one past the end of string
+	subl	$7, %eax	# character - 10 - '0' + 'A'
+	movb	%al, (%r8)	# store back the normalized digit
+	jmp	.L2sanInput
+
+	.C4sanInput:	# successful sanitizing
+	movb	$0, (%r8)	# add terminating null character
+	movq	%rsi, %rax	# index one past the end of string
 	ret
 
-	.C4sanInput:	# fix for stray characters
-	movl	$0, %eax
+	.C2sanInput:	# failed sanitizing
+	movq	$0, %rax	# invalid input
 	ret
