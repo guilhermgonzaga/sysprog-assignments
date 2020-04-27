@@ -454,15 +454,148 @@ BigIntMul:
         call    BigIntCompl
         jmp     .L1mul
 
+biDivModRestore:
+        pushq   %r13
+        pushq   %r12
+        pushq   %rbp
+        pushq   %rbx
+        subq    $1032, %rsp
+        movq    %rdi, %r12
+        movq    %rdx, %rbp
+        movq    %rcx, %rbx
+        leaq    512(%rsp), %rdi
+        movl    $64, %ecx
+        movl    $0, %eax
+        rep stosq
+        movq    %rsp, %rdi
+        call    BigIntAssign
+        movq    %r12, %rsi
+        movq    %rbp, %rdi
+        movl    $0, %eax
+        call    BigIntAssign
+        leaq    512(%rsp), %rsi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntAssign
+        leaq    512(%rsp), %rsi
+        movq    %rbp, %rdi
+        movl    $0, %eax
+        call    BigIntLT
+        testl   %eax, %eax
+        jne     .L12DM
+        movl    $0, %r13d
+.L2DM:
+        leaq    512(%rsp), %rsi
+        movq    %rsp, %rdi
+        movl    $0, %eax
+        call    BigIntLT
+        testl   %eax, %eax
+        jne     .L13DM
+.L3DM:
+        movl    $0, %r12d
+        jmp     .L4DM
+.L12DM:
+        movq    %rbp, %rdi
+        movl    $0, %eax
+        call    BigIntCompl
+        movl    $1, %r13d
+        jmp     .L2DM
+.L13DM:
+        xorq    $1, %r13
+        movq    %rsp, %rdi
+        movl    $0, %eax
+        call    BigIntCompl
+        jmp     .L3DM
+.L15DM:
+        andl    $-2, 508(%rbp)
+        movq    %rbx, %rdx
+        movq    %rsp, %rsi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntAdd
+.L6DM:
+        addq    $1, %r12
+.L4DM:
+        cmpq    $4095, %r12
+        jg      .L14DM
+        movl    $1, %esi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntShl
+        leaq    512(%rsp), %rsi
+        movq    %rbp, %rdi
+        movl    $0, %eax
+        call    BigIntLT
+        orl     %eax, 508(%rbx)
+        movl    $1, %esi
+        movq    %rbp, %rdi
+        movl    $0, %eax
+        call    BigIntShl
+        movq    %rbx, %rdx
+        movq    %rsp, %rsi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntSub
+        leaq    512(%rsp), %rsi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntLT
+        testl   %eax, %eax
+        jne     .L15DM
+        orl     $1, 508(%rbp)
+        jmp     .L6DM
+.L14DM:
+        leaq    512(%rsp), %rsi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntLT
+        testl   %eax, %eax
+        jne     .L16DM
+.L8DM:
+        testq   %r13, %r13
+        jne     .L17DM
+.L9DM:
+        movq    %rbp, %rsi
+        movq    %rbp, %rdi
+        movl    $0, %eax
+        call    BigIntAssign
+        addq    $1032, %rsp
+        popq    %rbx
+        popq    %rbp
+        popq    %r12
+        popq    %r13
+        ret
+.L16DM:
+        movq    %rbx, %rdx
+        movq    %rsp, %rsi
+        movq    %rbx, %rdi
+        movl    $0, %eax
+        call    BigIntAdd
+        jmp     .L8DM
+.L17DM:
+        movq    %rbp, %rdi
+        movl    $0, %eax
+        call    BigIntCompl
+        jmp     .L9DM
+
 // BigIntDiv: xdy = x / y
 // void BigIntDiv(BigInt x, BigInt y, BigInt xdy);
 BigIntDiv:
-	ret
+        subq    $520, %rsp
+        movq    %rsp, %rcx
+        call    biDivModRestore
+        addq    $520, %rsp
+        ret
 
 // BigIntMod: xmy = x % y
 // void BigIntMod(BigInt x, BigInt y, BigInt xmy);
 BigIntMod:
-	ret
+        subq    $520, %rsp
+        movq    %rdx, %rcx
+        movq    %rsp, %rdx
+        call    biDivModRestore
+        addq    $520, %rsp
+        ret
 
 // BigIntAnd: xay = x & y
 // void BigIntAnd(BigInt x, BigInt y, BigInt xay);
