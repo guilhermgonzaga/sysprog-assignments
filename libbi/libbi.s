@@ -454,6 +454,9 @@ BigIntMul:
         call    BigIntCompl
         jmp     .L1mul
 
+
+// biDivModRestore: xdy = x / y; rem = x % y
+// void biDivModRestore(const BigInt x, const BigInt y, BigInt xdy, BigInt rem);
 biDivModRestore:
         pushq   %r13
         pushq   %r12
@@ -746,6 +749,7 @@ BigIntCompl:
 	popq	%rbx
 	ret
 
+
 // bi2all: convert BigInt to BigIntStr in base 2, 8, 10 or 16.
 // Destroys input num.
 // int bi2all(BigInt num, BigIntStr buffer, BigInt base);
@@ -754,54 +758,42 @@ bi2all:
 	pushq	%r12
 	pushq	%rbp
 	pushq	%rbx
-	subq	$1032, %rsp	# space for 2 BigInts
-
-	movq	%rdi, %rbx	# store address of num
+	subq	$1032, %rsp	# allocate 2 BigInts
+	movq	%rdi, %rbp	# store address of num
+	movq	%rsi, %r12	# store address of buffer
 	movq	%rdx, %r13	# store address of base
 
-	movq	%rsp, %rdi	# address of the BigInts
-	movq	$256, %rcx
+	leaq	512(%rsp), %rdi	# address of auxiliary BigInt
+	movq	$128, %rcx
 	movl	$0, %eax
-	rep	stosl		# initialize 2 BigInts to zero
+	rep	stosl		# initialize auxiliary BigInt to zero
 
-	// movq	%rsi, %rdi	# address of buffer
-	// movq	$1024, %rcx
-	// movl	$0, %eax
-	// rep	stosl		# initialize buffer to zero
-
-	leaq	4095(%rsi), %rbp
-	movq	$4095, %r12	# end index of buffer
-	// movq	$0, 1(%rbp)	# add terminating null character
+	movq	$4095, %rbx	# end index of buffer
 
 	.L1bi2all:	# fill buffer with digits
 	leaq	512(%rsp), %rsi	# set parameters
-	movq	%rbx, %rdi
-	callq	BigIntEq	# compare num to zero
+	movq	%rbp, %rdi
+	call	BigIntEq	# compare num to zero
 	testq	%rax, %rax
-	jne	.C1bi2all	# loop while num != 0
+	jne	.C1bi2all	# break loop when num becomes zero
 
-	movq	%rsp, %rdx	# set parameters
-	movq	%r13, %rsi
-	movq	%rbx, %rdi
-	callq	BigIntMod	# temporary <- next digit
+	movq	%rsp, %rcx	# temporary BigInt to hold the digit
+	movq	%rbp, %rdx	# num
+	movq	%r13, %rsi	# base
+	movq	%rbp, %rdi	# num
+	call	biDivModRestore	# get next digit and update num
 
 	movl	508(%rsp), %eax	# next digit
-	movb	%al, (%rbp)	# buffer <- next digit
+	movb	%al, (%r12, %rbx)	# buffer <- next digit
 
-	movq	%rbx, %rdx	# set parameters
-	movq	%r13, %rsi
-	movq	%rbx, %rdi
-	callq	BigIntMul	# num <- num * base
+	decq	%rbx
+	cmpq	$0, %rbx
+	jge	.L1bi2all	# loop for all characters in buffer
+	incq	%rbx		# fix to index the first character in buffer
 
-	decq	%r12
-	decq	%rbp
-	cmpq	$0, %r12
-	jge	.L1bi2all	# loop for all digits in base
-
-	addq	$1, %r12	# Fix to index on the first character
-
-	.C1bi2all:	# end of function
-	movq	%r12, %rax	# start index of the string in buffer
+	.C1bi2all:
+	movb	$0, 4096(%r12)	# add terminating null character
+	movq	%rbx, %rax	# start index of the string in buffer
 	addq	$1032, %rsp
 	popq	%rbx
 	popq	%rbp
