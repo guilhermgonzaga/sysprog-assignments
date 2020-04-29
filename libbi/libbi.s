@@ -248,15 +248,15 @@ BigIntEq:
 // BigIntLT: returns x < y
 // int BigIntLT(BigInt x, BigInt y);
 BigIntLT:
-        subq    $8, %rsp
+	subq	$8, %rsp
 
-        movq    %rdi, %rax
-        movq    %rsi, %rdi
-        movq    %rax, %rsi
-        call    BigIntGT
+	movq	%rdi, %rax
+	movq	%rsi, %rdi
+	movq	%rax, %rsi
+	call	BigIntGT
 
-        addq    $8, %rsp
-        ret
+	addq	$8, %rsp
+	ret
 
 // BigIntGT: returns x > y
 // int BigIntGT(BigInt x, BigInt y);
@@ -377,228 +377,232 @@ BigIntSub:
 // BigIntMul: xty = x * y
 // void BigIntMul(BigInt x, BigInt y, BigInt xty);
 BigIntMul:
-        pushq   %rbp
-        pushq   %rbx
-        subq    $1544, %rsp
-        movq    %rdi, %r8
-        movq    %rsi, %rbp
-        movq    %rdx, %rbx
-        leaq    1024(%rsp), %rdi
-        movl    $64, %ecx
-        movl    $0, %eax
-        rep stosq
-        movq    %r8, %rsi
-        leaq    512(%rsp), %rdi
-        call    BigIntAssign
-        movq    %rbp, %rsi
-        movq    %rsp, %rdi
-        movl    $0, %eax
-        call    BigIntAssign
-        leaq    1024(%rsp), %rsi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntAssign
-        cmpl    $0, (%rsp)
-        js      .L10mul
-        movl    $0, %ebp
-.L2mul:
-        cmpl    $0, 512(%rsp)
-        jns     .L5mul
-        xorq    $1, %rbp
-        leaq    512(%rsp), %rdi
-        movl    $0, %eax
-        call    BigIntCompl
-        jmp     .L5mul
-.L10mul:
-        movq    %rsp, %rdi
-        movl    $0, %eax
-        call    BigIntCompl
-        movl    $1, %ebp
-        jmp     .L2mul
-.L12mul:
-        movq    %rbx, %rdx
-        leaq    512(%rsp), %rsi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntAdd
-.L4mul:
-        movl    $1, %esi
-        movq    %rsp, %rdi
-        movl    $0, %eax
-        call    BigIntShar
-        movl    $1, %esi
-        leaq    512(%rsp), %rdi
-        movl    $0, %eax
-        call    BigIntShl
-.L5mul:
-        leaq    1024(%rsp), %rsi
-        movq    %rsp, %rdi
-        movl    $0, %eax
-        call    BigIntEq
-        testl   %eax, %eax
-        jne     .L11mul
-        testb   $1, 508(%rsp)
-        je      .L4mul
-        jmp     .L12mul
-.L11mul:
-        testq   %rbp, %rbp
-        jne     .L13mul
-.L1mul:
-        addq    $1544, %rsp
-        popq    %rbx
-        popq    %rbp
-        ret
-.L13mul:
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntCompl
-        jmp     .L1mul
+	pushq	%rbp
+	pushq	%rbx
+	subq	$1544, %rsp	# allocate 3 temporary BigInts + alignment
+	movq	%rdi, %r8	# store address of x
+	movq	%rsi, %rbp	# store address of y
+	movq	%rdx, %rbx	# store address of xty
+
+	leaq	1024(%rsp), %rdi
+	movq	$128, %rcx
+	movl	$0, %eax
+	rep	stosl		# initialize auxiliary BigInt to zero
+
+	movq	%r8, %rsi	# set parameters
+	leaq	512(%rsp), %rdi	# copy x to temporary
+	call	BigIntAssign
+
+	movq	%rbp, %rsi	# set parameters
+	movq	%rsp, %rdi
+	call	BigIntAssign	# copy y to temporary
+
+	leaq	1024(%rsp), %rsi	# set parameters
+	movq	%rbx, %rdi
+	call	BigIntAssign	# initialize xty to zero
+
+	cmpl	$0, (%rsp)	# temporary Y < 0
+	js	.C3mul
+	movq	$0, %rbp	# boolean; positive output
+
+	.C2mul:		# for negative input in x
+	cmpl	$0, 512(%rsp)	# temporary X < 0
+	jns	.L1mul
+	xorq	$1, %rbp	# boolean; negative output
+
+	leaq	512(%rsp), %rdi
+	call	BigIntCompl
+	jmp	.L1mul
+
+	.C3mul:		# for negative input in y
+	movq	%rsp, %rdi
+	call	BigIntCompl
+	movq	$1, %rbp	# boolean; positive output
+	jmp	.C2mul
+
+	.L12mul:
+	movq	%rbx, %rdx	# set parameters
+	leaq	512(%rsp), %rsi
+	movq	%rbx, %rdi
+	call	BigIntAdd	# xty += temporary X
+
+	.C4mul:
+	movq	$1, %rsi	# set parameters
+	movq	%rsp, %rdi
+	call	BigIntShar	# temporary Y <<= 1
+
+	movq	$1, %rsi	# set parameters
+	leaq	512(%rsp), %rdi
+	call	BigIntShl	# temporary x <<= 1
+
+	.L1mul:		# loop test
+	leaq	1024(%rsp), %rsi	# set parameters
+	movq	%rsp, %rdi
+	call	BigIntEq	# temporary Y == zero
+	testq	%rax, %rax
+	jne	.C6mul		# end of loop
+
+	testb	$1, 508(%rsp)	# if LSB of temporary X is 1
+	je	.C4mul
+	jmp	.L12mul
+
+	.C6mul:
+	testq	%rbp, %rbp	# if output must be negative
+	jne	.C7mul		# get two's complement for output
+
+	.C1mul:		# end of function
+	addq	$1544, %rsp
+	popq	%rbx
+	popq	%rbp
+	ret
+
+	.C7mul:		# fix for negative output
+	movq	%rbx, %rdi
+	call	BigIntCompl	# get two's complement for xty
+	jmp	.C1mul		# return
 
 
 // biDivModRestore: xdy = x / y; rem = x % y
 // void biDivModRestore(const BigInt x, const BigInt y, BigInt xdy, BigInt rem);
 biDivModRestore:
-        pushq   %r13
-        pushq   %r12
-        pushq   %rbp
-        pushq   %rbx
-        subq    $1032, %rsp
-        movq    %rdi, %r12
-        movq    %rdx, %rbp
-        movq    %rcx, %rbx
-        leaq    512(%rsp), %rdi
-        movl    $64, %ecx
-        movl    $0, %eax
-        rep stosq
-        movq    %rsp, %rdi
-        call    BigIntAssign
-        movq    %r12, %rsi
-        movq    %rbp, %rdi
-        movl    $0, %eax
-        call    BigIntAssign
-        leaq    512(%rsp), %rsi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntAssign
-        leaq    512(%rsp), %rsi
-        movq    %rbp, %rdi
-        movl    $0, %eax
-        call    BigIntLT
-        testl   %eax, %eax
-        jne     .L12DM
-        movl    $0, %r13d
-.L2DM:
-        leaq    512(%rsp), %rsi
-        movq    %rsp, %rdi
-        movl    $0, %eax
-        call    BigIntLT
-        testl   %eax, %eax
-        jne     .L13DM
-.L3DM:
-        movl    $0, %r12d
-        jmp     .L4DM
-.L12DM:
-        movq    %rbp, %rdi
-        movl    $0, %eax
-        call    BigIntCompl
-        movl    $1, %r13d
-        jmp     .L2DM
-.L13DM:
-        xorq    $1, %r13
-        movq    %rsp, %rdi
-        movl    $0, %eax
-        call    BigIntCompl
-        jmp     .L3DM
-.L15DM:
-        andl    $-2, 508(%rbp)
-        movq    %rbx, %rdx
-        movq    %rsp, %rsi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntAdd
-.L6DM:
-        addq    $1, %r12
-.L4DM:
-        cmpq    $4095, %r12
-        jg      .L14DM
-        movl    $1, %esi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntShl
-        leaq    512(%rsp), %rsi
-        movq    %rbp, %rdi
-        movl    $0, %eax
-        call    BigIntLT
-        orl     %eax, 508(%rbx)
-        movl    $1, %esi
-        movq    %rbp, %rdi
-        movl    $0, %eax
-        call    BigIntShl
-        movq    %rbx, %rdx
-        movq    %rsp, %rsi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntSub
-        leaq    512(%rsp), %rsi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntLT
-        testl   %eax, %eax
-        jne     .L15DM
-        orl     $1, 508(%rbp)
-        jmp     .L6DM
-.L14DM:
-        leaq    512(%rsp), %rsi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntLT
-        testl   %eax, %eax
-        jne     .L16DM
-.L8DM:
-        testq   %r13, %r13
-        jne     .L17DM
-.L9DM:
-        movq    %rbp, %rsi
-        movq    %rbp, %rdi
-        movl    $0, %eax
-        call    BigIntAssign
-        addq    $1032, %rsp
-        popq    %rbx
-        popq    %rbp
-        popq    %r12
-        popq    %r13
-        ret
-.L16DM:
-        movq    %rbx, %rdx
-        movq    %rsp, %rsi
-        movq    %rbx, %rdi
-        movl    $0, %eax
-        call    BigIntAdd
-        jmp     .L8DM
-.L17DM:
-        movq    %rbp, %rdi
-        movl    $0, %eax
-        call    BigIntCompl
-        jmp     .L9DM
+	pushq	%r13
+	pushq	%r12
+	pushq	%rbp
+	pushq	%rbx
+	movq	%rdi, %r12	# store address of x
+	movq	%rdx, %rbp	# store address of xdy
+	movq	%rcx, %rbx	# store address of rem
+
+	subq	$520, %rsp	# allocate space for a BigInt + alignment
+	movq	%rbx, %rdi
+	movq	$128, %rcx
+	movl	$0, %eax
+	rep	stosl		# initialize rem to zero
+
+	movq	%rsp, %rdi
+	call	BigIntAssign	# initialize temporary BigInt with y
+
+	movq	%r12, %rsi
+	movq	%rbp, %rdi
+	call	BigIntAssign	# initialize xdy with x
+
+	cmpl	$0, 0(%rbp)	# xdy < 0
+	js	.C1divmod	# make xdy positive
+
+	movl	$0, %r13d	# boolean; result will be positive
+
+	.C2divmod:
+	cmpl	$0, (%rsp)	# temporary < 0
+	js	.C4divmod	# make temporary positive
+
+	.C3divmod:
+	movq	$0, %r12	# initialize loop counter
+	jmp	.L1divmod	# start looping for all bits
+
+	.C1divmod:
+	movq	%rbp, %rdi
+	call	BigIntCompl	# get two's complement for xdy
+
+	movl	$1, %r13d	# boolean: result will be negative
+	jmp	.C2divmod
+
+	.C4divmod:
+	xorq	$1, %r13	# boolean: result will be negative
+	movq	%rsp, %rdi
+	call	BigIntCompl	# get two's complement for temporary
+	jmp	.C3divmod
+
+	.L3divmod:
+	orl	$1, 508(%rbp)	# set least significant bit of xdy
+
+	.L2divmod:
+	incq	%r12		# count up to 4095
+	.L1divmod:	# loop
+	cmpq	$4095, %r12
+	jg	.C6divmod	# stop if calculated all bits
+
+	movq	$1, %rsi	# set parameters
+	movq	%rbx, %rdi
+	call	BigIntShl	# rem <<= 1
+
+	movl	0(%rbp), %eax
+	shrl	$31, %eax	# most significant bit
+	orl	%eax, 508(%rbx)	# set least significant bit of rem
+
+	movq	$1, %rsi	# set parameters
+	movq	%rbp, %rdi
+	call	BigIntShl	# xdy <<= 1
+
+	movq	%rbx, %rdx	# set parameters
+	movq	%rsp, %rsi
+	movq	%rbx, %rdi
+	call	BigIntSub
+
+	cmpl	$0, (%rbx)	# rem < 0
+	jns	.L3divmod
+
+	andl	$-2, 508(%rbp)	# zero out least significant bit of xdy
+
+	movq	%rbx, %rdx	# set parameters
+	movq	%rsp, %rsi
+	movq	%rbx, %rdi
+	call	BigIntAdd	# rem += temporary
+
+	jmp	.L2divmod
+
+	.C6divmod:
+	cmpl	$0, (%rbx)	# rem < 0
+	js	.C8divmod
+
+	.C5divmod:
+	testq	%r13, %r13
+	jne	.C9divmod	# jump if output will be negative
+
+	.C7divmod:	# end of function
+	addq	$520, %rsp
+	popq	%rbx
+	popq	%rbp
+	popq	%r12
+	popq	%r13
+	ret
+
+	.C8divmod:	# fix for remainder
+	movq	%rbx, %rdx	# set parameters
+	movq	%rsp, %rsi
+	movq	%rbx, %rdi
+	call	BigIntAdd	# rem += temporary
+	jmp	.C5divmod
+
+	.C9divmod:	# fix for negative output
+	movq	%rbp, %rdi
+	call	BigIntCompl	# get two's complement for xdy
+	jmp	.C7divmod	# return
+
 
 // BigIntDiv: xdy = x / y
 // void BigIntDiv(BigInt x, BigInt y, BigInt xdy);
 BigIntDiv:
-        subq    $520, %rsp
-        movq    %rsp, %rcx
-        call    biDivModRestore
-        addq    $520, %rsp
-        ret
+	subq	$520, %rsp	# allocate a temporary BigInt + alignment
+
+	movq	%rsp, %rcx	# set parameter
+	call	biDivModRestore
+
+	addq	$520, %rsp
+	ret
+
 
 // BigIntMod: xmy = x % y
 // void BigIntMod(BigInt x, BigInt y, BigInt xmy);
 BigIntMod:
-        subq    $520, %rsp
-        movq    %rdx, %rcx
-        movq    %rsp, %rdx
-        call    biDivModRestore
-        addq    $520, %rsp
-        ret
+	subq	$520, %rsp	# allocate a temporary BigInt + alignment
+
+	movq	%rdx, %rcx	# set parameters
+	movq	%rsp, %rdx
+	call	biDivModRestore
+
+	addq	$520, %rsp
+	ret
+
 
 // BigIntAnd: xay = x & y
 // void BigIntAnd(BigInt x, BigInt y, BigInt xay);
@@ -660,11 +664,11 @@ BigIntShl:
 
 	.L1shl:
 	movl	(%rdi, %r10, 4), %ebx
-	movl	%ebx, %edx 			# aux of %ebx
+	movl	%ebx, %edx			# aux of %ebx
 	movl	%esi, %ecx
 
 	shl	%cl, %ebx
-	rol	%cl, %edx		
+	rol	%cl, %edx
 	sub	%ebx, %edx			# calculates carry bits
 
 	add	%r8d, %ebx			# sum with carry
@@ -687,8 +691,8 @@ BigIntShar:
 	xorq	%r8, %r8			# aux for carry of shift
 
 	.L1shr:
-	movl	(%rdi, %r10, 4), %ebx 
-	movl	%ebx, %edx 			# aux of %ebx
+	movl	(%rdi, %r10, 4), %ebx
+	movl	%ebx, %edx			# aux of %ebx
 	movl	%esi, %ecx
 
 	shr	%cl, %ebx

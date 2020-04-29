@@ -16,7 +16,7 @@ bitest: bitest.o libbi.a
 	$(CC) -L. -o bitest bitest.o -lbi
 
 fibtest: fibtest.o libbi.a
-	$(CC) -L. -o fibtest fibtest.o -lbi -lgomp
+	$(CC) -L. -o fibtest fibtest.o -lbi
 
 # Clean up!
 clean:
@@ -27,9 +27,6 @@ distclean: clean
 	@rm -fv *~
 	@rm -fv \#*
 	@rm -fv *.bak
-
-fibtest.o: fibtest.c
-	$(CC) $(CCOPTS) -fopenmp $<
 
 # How to compile a C file
 %.o:%.c
