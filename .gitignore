@@ -4,7 +4,3 @@ obj/
 *.o
 *.bak
 *.a
-
-# Temporarily
-libbi/bitest
-libbi/fibtest

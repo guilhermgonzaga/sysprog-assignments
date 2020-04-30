@@ -1,41 +1,56 @@
 # Makefile for the project.
 # Best viewed with tabs set to 4 spaces.
 
-CC = gcc
+BIN:=./bin
+OBJ:=./obj
+SRC:=./src
+DIRS:=$(BIN) $(OBJ) $(SRC)
 
-CCOPTS = -Wall -g -c -I.
+CC:=gcc
+CCOPTS:=-Wall -g -c -I$(SRC)
+
+
+.PHONY: clean
+.SECONDARY: $(OBJ)/bitest.o $(OBJ)/fibtest.o $(OBJ)/libbi.o
 
 # Makefile targets
 
-all: fibtest bitest libbi.a
-
-libbi.a: libbi.o
-	ar rcs libbi.a libbi.o
-
-bitest: bitest.o libbi.a
-	$(CC) -L. -o bitest bitest.o -lbi
-
-fibtest: fibtest.o libbi.a
-	$(CC) -L. -o fibtest fibtest.o -lbi
+all: $(DIRS) bitest fibtest libbi
+bitest: $(DIRS) $(BIN)/bitest
+fibtest: $(DIRS) $(BIN)/fibtest
+libbi: $(DIRS) $(BIN)/libbi.a
 
 # Clean up!
 clean:
-	@rm -fv fibtest.o fibtest bitest.o bitest libbi.o libbi.a
+	@rm -fv -- $(OBJ)/* $(BIN)/*
 
 # No, really, clean up!
 distclean: clean
-	@rm -fv *~
-	@rm -fv \#*
-	@rm -fv *.bak
+	@rm -rfv -- $(OBJ) $(BIN)
+	@rm -fv -- *~
+	@rm -fv -- \#*
+	@rm -fv -- *.bak
+
+
+# How to link an object to libbi
+$(BIN)/%: $(OBJ)/%.o $(BIN)/libbi.a
+	$(CC) -L$(BIN) -o $@ $< -lbi
+
+# How to create a static library from object file
+$(BIN)/%.a: $(OBJ)/%.o
+	ar rcs $@ $<
 
 # How to compile a C file
-%.o:%.c
-	$(CC) $(CCOPTS) $<
+$(OBJ)/%.o:$(SRC)/%.c
+	$(CC) $(CCOPTS) -o $@ $<
 
 # How to assemble
-%.o:%.s
-	$(CC) $(CCOPTS) $<
+$(OBJ)/%.o:$(SRC)/%.s
+	$(CC) $(CCOPTS) -o $@ $<
 
 # How to produce assembler input from a C file
-%.s:%.c
-	$(CC) $(CCOPTS) -S $<
+$(SRC)/%.s:$(SRC)/%.c
+	$(CC) $(CCOPTS) -S -o $@ $<
+
+$(DIRS):
+	@mkdir -pv $@
