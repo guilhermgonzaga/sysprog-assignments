@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 
-#define IMAGE_FILE "./bin/image"
+#define IMAGE_FILE "./image"
 #define ARGS "[--extended] [--vm] <bootblock> <executable-file> ..."
 
 #define SECTOR_SIZE 512             /* floppy sector size in bytes */

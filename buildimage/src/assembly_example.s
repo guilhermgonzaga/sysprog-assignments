@@ -5,29 +5,29 @@
 .text               #Code segment
 .globl    _start    #The entry point must be global
 .code16             #Real mode
-	
+
 _start:
 	# -------------------
 	#   If construct example
 	#   if (a == 2)
-	#      a  = 3; 
-	# 		
-	
+	#      a  = 3;
+	#
+
 	movw	$3, %ax
 	cmpw	$2, %ax
 	jne	neida
 	movw	$3,  %ax
-neida:	
+neida:
 
 
 	# -------------------
-	#  For Loop example 
-	#  for (i = 0; i < 5; i++) 
+	#  For Loop example
+	#  for (i = 0; i < 5; i++)
 	#      a = i;
-	# 
+	#
 	movw	$0,  %cx	# put 0 into the counter register
-loop1:	
-	cmpw	$5, %cx		
+loop1:
+	cmpw	$5, %cx
 	jge	loop1done	# Jump if greater than or equal
 	movw	%cx, %ax	# a = i
 	incw	%cx
@@ -37,37 +37,37 @@ loop1done:
 	# than or equal to 5
 
 	# ------------------
-	#  For loop that prints a string	 
+	#  For loop that prints a string
 	#  for (i = 0; i < 5; i++) {
 	#      a = i;
 	#      print(mystring);   /* Mystring is a char/string pointer*/
 	#  }
 
 	movw	$0,  %cx	# put 0 into the counter register
-loop1b:	
+loop1b:
 	cmpw	$5, %cx
 	jge	loop1bdone	# Jump if greater than or equal
 	movw	%cx, %ax	# a = i
-	
+
 	movl	$mystring,%esi	# teststring for debug
 	call	print		# call print
-	
+
 	incw	%cx
 	jmp	loop1b
-loop1bdone:	
+loop1bdone:
 
-	
+
 	# ---------------------
 	#  a = 0;
 	#  do {
-	#     a = a + 1; 
+	#     a = a + 1;
 	#  } while (a < 10);
 
 	movw	$0, %ax
 loop2:
 	incw	%ax
-	cmpw	$10, %ax         
-	jl	loop2	
+	cmpw	$10, %ax
+	jl	loop2
 
 
 
@@ -78,12 +78,12 @@ loop2:
 	movw	$mystring, %si
 	call	print
 	pop	%ax             # Pop a register
-	
-	
+
+
 	# say hello to user
 	movl	$hellostring,%esi
 	call	print
-	
+
 forever:
 	jmp	forever
 
@@ -105,7 +105,7 @@ print_done:
 
 # messages
 
-mystring:  
+mystring:
   .asciz  "test.\n\r"
-hellostring:  
+hellostring:
   .asciz  "Hi there.\n\r"

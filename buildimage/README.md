@@ -1,6 +1,6 @@
 # buildimage: ELF32 file reader
 
-This project was built to teach how an operating system boots up by setting up a bootloader and a primitive kernel in a bootable image. For the most part, the implementation in `buildimage.c` gets the two referred executables (ELF32 files) and extracts their information in order to create the image.
+This project was built to learn how an operating system boots up by setting up a bootloader and a primitive kernel in a bootable image. For the most part, the implementation in `buildimage.c` gets the two referred executables (ELF32 files) and extracts their information in order to create the image.
 
 
 ### Specification
@@ -14,7 +14,7 @@ This project is not necessarily an acceptable solution to the original specifica
 
 Development has been aimed at and only tested on Linux (Ubuntu 19 and Debian 10 distros).
 
-Everything can be done via the `make` command.
+Everything can be done via the `make` utility.
 
 Make sure to overwrite the `kernel.s` file with one of the three available kernels in order to change tests.
 ```sh
