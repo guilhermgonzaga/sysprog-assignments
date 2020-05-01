@@ -89,6 +89,11 @@ int main(int argc, char *argv[])
 	printf("\nx=%s, ~x=%s", BigIntToStr(x, xs, base),
 	       BigIntToStr(r, rs, base));
 
+	BigIntAssign(r, x);
+	BigIntCompl(r);
+	printf("\nx=%s, -x=%s", BigIntToStr(x, xs, base),
+	       BigIntToStr(r, rs, base));
+
 	/* Unary Operators for y*/
 	BigIntAssign(r, y);
 	BigIntShl(r, 10);
@@ -103,6 +108,11 @@ int main(int argc, char *argv[])
 	BigIntAssign(r, y);
 	BigIntNeg(r);
 	printf("\nx=%s, ~x=%s\n", BigIntToStr(y, ys, base),
+	       BigIntToStr(r, rs, base));
+
+	BigIntAssign(r, x);
+	BigIntCompl(r);
+	printf("\nx=%s, -x=%s", BigIntToStr(x, xs, base),
 	       BigIntToStr(r, rs, base));
 
 	return 0;

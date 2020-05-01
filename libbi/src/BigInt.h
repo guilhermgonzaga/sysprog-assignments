@@ -2,10 +2,12 @@
 
 #define _BIGINT_H
 
+#include <stdint.h>
+
 #define BIGINT_LEN	128
 #define BIGINT_STR_LEN	4096
 
-typedef int BigInt[BIGINT_LEN];
+typedef int32_t BigInt[BIGINT_LEN];
 typedef char BigIntStr[BIGINT_STR_LEN+1];
 
 
