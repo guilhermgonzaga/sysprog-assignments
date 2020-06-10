@@ -23,4 +23,4 @@ cp kernel-medium.s kernel.s
 cp kernel-large.s  kernel.s
 ```
 
-After the build steps, the image is created and placed on the `bin` folder. It can then be tested with [Bochs](http://bochs.sourceforge.net/) or maybe even booted from a drive (not tested and we take no responsability for bad outcomes).
+After the build steps, the image is created and placed on the `bin` folder. It can then be tested with [Bochs](http://bochs.sourceforge.net/) or maybe even booted from a drive (not tested and we take no responsibility for bad outcomes).
