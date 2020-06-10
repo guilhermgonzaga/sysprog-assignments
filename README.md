@@ -22,5 +22,6 @@ These assignments are organized one per subdirectory, namely
 
 1. `buildimage`: an ELF32 file reader written in C.
 1. `libbi`: an x86-64 assembly implementation for fixed-width big integer arithmetic.
+1. `non-preemptive-kernel`: enable multiprogramming in a primitive kernel, with support for kernel threads as well as processes.
 
 Find more details in each project's README files.
