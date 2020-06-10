@@ -10,11 +10,11 @@ This project was based on [this one](https://www.cs.princeton.edu/courses/archiv
 This project is not necessarily an acceptable solution to the original specification, as ours was modified to fit time constraints and attendees' diverse curriculum progression.
 
 
-## Workings
+## Getting started
 
 Development has been aimed at and only tested on Linux (Ubuntu 19 and Debian 10 distros).
 
-Everything can be done via the `make` utility.
+Everything can be built with the `make` utility.
 
 Make sure to overwrite the `kernel.s` file with one of the three available kernels in order to change tests.
 ```sh
