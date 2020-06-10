@@ -1,6 +1,6 @@
 # libbi: x86-64 assembly implementation for fixed-width big integer arithmetic
 
-This project was built to learn x86-64 assembly control flow and data manipulation by writing a big integer arithmetic library. The implementation is in `libbi.s`, and a header file, `BigInt.h`, is available, as usual.
+This project was built to learn x86-64 assembly control flow and data manipulation by writing a big integer arithmetic library. The implementation is in `libbi.s`, and a header file, `BigInt.h`, is available.
 
 
 #### Supported operations
@@ -23,7 +23,7 @@ This project was built to learn x86-64 assembly control flow and data manipulati
 1. Create string representation of number in base 2, 8, 10 and 16
 
 
-## Workings
+## Getting started
 
 Development has been aimed at and only tested on Linux (Ubuntu 19 and Mint 19.1 distros).
 
