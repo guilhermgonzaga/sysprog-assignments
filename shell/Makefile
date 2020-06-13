@@ -1,12 +1,14 @@
 # Makefile for the project.
 
 BIN:=./bin
+INCLUDE:=./include
 OBJ:=./obj
 SRC:=./src
-DIRS:=$(BIN) $(OBJ) $(SRC)
+TEST:=./test
+DIRS:=$(BIN) $(INCLUDE) $(OBJ) $(SRC) $(TEST)
 
 CC:=gcc
-CCOPTS:=-Wall -Wextra -pedantic -g -c
+CCOPTS:=-Wall -Wextra -pedantic -I$(INCLUDE) -g -c
 
 
 .PHONY: clean
@@ -18,8 +20,8 @@ all: $(DIRS)
 
 # Clean up!
 clean:
-	# rm -rf -- $(BIN)/*
-	# rm -rf -- $(OBJ)/*
+	rm -rf -- $(BIN)/*
+	rm -rf -- $(OBJ)/*
 
 # How to build an executable
 # $(BIN)/%:$(OBJ)/%.o
@@ -30,4 +32,4 @@ $(OBJ)/%.o:$(SRC)/%.c
 	$(CC) $(CCOPTS) -o $@ $<
 
 $(DIRS):
-	mkdir -pv $@
+	mkdir -p $@

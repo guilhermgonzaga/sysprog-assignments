@@ -2,11 +2,11 @@
 
 Precisamos definir uma interface para cada módulo, além de estruturas de dados.
 
-Etapas de um REPL:
+Etapas de um pipeline REPL:
 
 1. Receber/processar entrada
-1. Executar comandos
-1. Imprimir saída
+1. Executar comandos (efeitos colaterais estão todos aqui)
+1. Imprimir/redirecionar saída
 1. Repetir etapas acima
 
 
@@ -21,7 +21,7 @@ Etapas de um REPL:
 - [ ] Buscar programas a serem executados nos diretórios listados na variável `MYPATH`;
 - [ ] Comando `export` para (re)definição de variáveis;
 - [ ] Comando `cd` para mudança de diretório --- deve atualizar a variável `PWD`;
-- [ ] Comando `history`, que mostra os últimos 50 comandos digitados pelo usuário;
+- [ ] Comando `history`, que mostra os últimos 50 comandos digitados pelo usuário (inclusive si mesmo);
 - [ ] Mostrar um *prompt*, mas permitir que o texto seja redefinido pela variável `MYPS1`;
 - [ ] Comando `exit` e tratamento de `^D` (não é sinal) para encerrar a *shell*;
 - [ ] Tratar sinal `SIGINT`;
@@ -34,3 +34,9 @@ Etapas de um REPL:
 - [ ] Comando `echo` para visualização do conteúdo de variáveis de ambiente e impressão de cadeias de caracteres;
 - [ ] Comando `set` para visualizar todas as variáveis de ambiente;
 - [ ] **Extra**. Implementar uma linguagem para criação e processamento de *scripts*;
+
+
+## Links úteis
+
+- [microshell](https://github.com/mtds/microshell)
+- [picoshell](https://github.com/ryo1kato/picoshell)
