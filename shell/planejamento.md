@@ -33,7 +33,11 @@ Etapas de um pipeline REPL:
 - [ ] Tratar sinal `SIGCHLD`;
 - [ ] Comando `echo` para visualização do conteúdo de variáveis de ambiente e impressão de cadeias de caracteres;
 - [ ] Comando `set` para visualizar todas as variáveis de ambiente;
-- [ ] **Extra**. Implementar uma linguagem para criação e processamento de *scripts*;
+
+- [ ] **Ponto Extra**. Implementar uma linguagem para criação e processamento de *scripts*;
+
+- [ ] **Extra**. Aceitar setas para cima e para baixo para acessar o histórico;
+- [ ] **Extra**. Aceitar ^L para limpar a tela;
 
 
 ## Links úteis
