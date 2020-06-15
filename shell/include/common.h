@@ -1,8 +1,11 @@
+/**
+ * @file common.h
+ * Description.
+ */
+
 #ifndef COMMON_H
 #define COMMON_H
 
-
-#define ARG_MAX 0x32000
 
 enum builtin {
 	CMD_CD,
@@ -16,9 +19,10 @@ enum builtin {
 };
 
 enum op {
-	OP_IN,
-	OP_OUT,
+	OP_LT,
+	OP_GT,
 	OP_PIPE,
+	OP_AMPERSAND,
 };
 
 

@@ -10,13 +10,15 @@ Etapas de um pipeline REPL:
 1. Repetir etapas acima
 
 
-## Funcionalidades
+## Funcionalidades originais
 
 - [ ] Execução de um programa com ou sem argumentos:
 	- [ ] em *foreground*;
 	- [ ] em *background*;
 	- [ ] com redirecionamento da entrada padrão (`<`);
+		- Se aparecer mais de uma vez, só se considera a última.
 	- [ ] com redirecionamento das saídas padrão (`>`) ou de erro (`2>`);
+		- Se aparecer mais de uma vez, só se considera a última.
 - [ ] Pipes (`|`) entre programas, sem limitação;
 - [ ] Buscar programas a serem executados nos diretórios listados na variável `MYPATH`;
 - [ ] Comando `export` para (re)definição de variáveis;
@@ -24,8 +26,8 @@ Etapas de um pipeline REPL:
 - [ ] Comando `history`, que mostra os últimos 50 comandos digitados pelo usuário (inclusive si mesmo);
 - [ ] Mostrar um *prompt*, mas permitir que o texto seja redefinido pela variável `MYPS1`;
 - [ ] Comando `exit` e tratamento de `^D` (não é sinal) para encerrar a *shell*;
-- [ ] Tratar sinal `SIGINT`;
-- [ ] Tratar sinal `SIGTSTP`;
+- [ ] Tratar sinal `SIGINT` (`^C`);
+- [ ] Tratar sinal `SIGTSTP` (`^Z`);
 - [ ] Comando `kill`;
 - [ ] Comando `jobs`;
 - [ ] Comando `fg`;
@@ -36,8 +38,15 @@ Etapas de um pipeline REPL:
 
 - [ ] **Ponto Extra**. Implementar uma linguagem para criação e processamento de *scripts*;
 
-- [ ] **Extra**. Aceitar setas para cima e para baixo para acessar o histórico;
-- [ ] **Extra**. Aceitar ^L para limpar a tela;
+#### Extras
+
+- [ ] Aceitar alguns [atalhos de teclado](https://ss64.com/bash/syntax-keyboard.html);
+	- [ ] Setas para cima e para baixo para acessar o histórico;
+	- [ ] `^L` para limpar a tela;
+	- [ ] `^R` para buscar um comando no histórico --- veja esta [pergunta](https://stackoverflow.com/questions/1508490/erase-the-current-printed-console-line);
+- [ ] Permitir autoexecução --- detalhe: `strtok()` não permite reentrância;
+	- [ ] Receber parâmetros de linha de comando;
+- [ ] Consertar *lexer* para o caso `\ ` como espaço não separador;
 
 
 ## Links úteis

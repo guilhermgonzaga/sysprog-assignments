@@ -7,3 +7,5 @@
 
 
 // TODO handle process spawning and execution
+
+// TODO handle search executables in evironment variables

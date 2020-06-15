@@ -13,6 +13,6 @@ typedef enum {
 
 typedef struct {
 	// name_t name;
-	char lexema[50];
+	char lexeme[50];
 } token_t;
 */
