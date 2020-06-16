@@ -4,8 +4,9 @@
  */
 
 #include <common.h>
+#include <execution.h>
 
 
 // TODO handle process spawning and execution
 
-// TODO handle search executables in evironment variables
+// TODO search executables in evironment variables

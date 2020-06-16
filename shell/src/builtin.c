@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <builtin.h>
 
 
 // TODO define functions for each builtin

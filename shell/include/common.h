@@ -7,23 +7,17 @@
 #define COMMON_H
 
 
-enum builtin {
-	CMD_CD,
-	CMD_ECHO,
-	CMD_HISTORY,
-	CMD_KILL,
-	CMD_JOBS,
-	CMD_FG,
-	CMD_BG,
-	CMD_SET,
-};
-
-enum op {
-	OP_LT,
-	OP_GT,
-	OP_PIPE,
-	OP_AMPERSAND,
-};
+typedef enum {
+	ERR_NO_ERROR,
+	ERR_GENERIC,
+	ERR_INPUT,
+	ERR_OUTPUT,
+	ERR_MEMORY,
+	ERR_END_OF_DATA,
+	ERR_INVALID_PARAM,
+	ERR_INVALID_OP,
+	ERR_QUOTE_MISMATCH,
+} errcode_t;
 
 
 #endif
