@@ -42,6 +42,7 @@ Etapas de um pipeline REPL:
 
 - [ ] Aceitar alguns [atalhos de teclado](https://ss64.com/bash/syntax-keyboard.html);
 	- [ ] Setas para cima e para baixo para acessar o histórico;
+	- [ ] Setas para esquerda e para direita para navegar na linha;
 	- [ ] `^L` para limpar a tela;
 	- [ ] `^R` para buscar um comando no histórico --- veja esta [pergunta](https://stackoverflow.com/questions/1508490/erase-the-current-printed-console-line);
 - [ ] Permitir autoexecução --- detalhe: `strtok()` não permite reentrância;

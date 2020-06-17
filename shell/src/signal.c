@@ -5,5 +5,3 @@
 
 #include <common.h>
 
-
-// TODO handle ^C
