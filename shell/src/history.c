@@ -10,7 +10,7 @@
 #include <history.h>
 
 
-char *history[HISTORY_SIZE];
+char *history_buffer[HISTORY_SIZE];
 static size_t latest = 0;
 
 
@@ -26,8 +26,8 @@ errcode_t history_append(const char *cmdline) {
 	size_t length = strlen(cmdline);
 
 	latest = (latest + 1) % HISTORY_SIZE;
-	reserve_space(&history[latest], length + 1);
-	strcpy(history[HISTORY_SIZE], cmdline);
+	reserve_space(&history_buffer[latest], length + 1);
+	strcpy(history_buffer[HISTORY_SIZE], cmdline);
 
 	return ERR_NO_ERROR;
 }
@@ -35,7 +35,7 @@ errcode_t history_append(const char *cmdline) {
 
 errcode_t history_free() {
 	for (size_t i = 0; i < HISTORY_SIZE; ++i) {
-		free(history[i]);
+		free(history_buffer[i]);
 	}
 
 	return ERR_NO_ERROR;

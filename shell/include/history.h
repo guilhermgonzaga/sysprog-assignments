@@ -10,7 +10,7 @@
 #define HISTORY_SIZE 50
 
 
-extern char *history[HISTORY_SIZE];
+extern char *history_buffer[HISTORY_SIZE];
 
 
 errcode_t history_append(const char *cmdline);
