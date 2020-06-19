@@ -7,6 +7,9 @@
 #define COMMON_H
 
 
+#include <linux/limits.h>
+
+
 typedef enum {
 	ERR_NO_ERROR,
 	ERR_GENERIC,

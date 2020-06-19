@@ -48,6 +48,7 @@ Etapas de um pipeline REPL:
 - [ ] Permitir autoexecução --- detalhe: `strtok()` não permite reentrância;
 	- [ ] Receber parâmetros de linha de comando;
 - [ ] Consertar *lexer* para o caso `\ ` como espaço não separador;
+- [ ] Armazenar histórico entre execuções num arquivo `.shell_history`;
 
 
 ## Links úteis

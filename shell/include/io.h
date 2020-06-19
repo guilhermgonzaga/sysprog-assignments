@@ -9,8 +9,6 @@
 
 #include <stdio.h>
 
-#define ARG_MAX 0x32000
-
 
 extern char cmdline_buffer[ARG_MAX+1];
 
