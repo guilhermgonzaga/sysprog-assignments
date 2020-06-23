@@ -16,7 +16,7 @@
 
 
 
-errcode_t cd() {
+errcode_t cd(command_t cmd) {
 	static char lwd[PATH_MAX+1];  // Last working directory
 
 	strcpy(lwd, cwd);
@@ -29,7 +29,7 @@ errcode_t cd() {
 	return ERR_NO_ERROR;
 }
 
-errcode_t echo() {
+errcode_t echo(command_t cmd) {
 	token_t token;
   char *arg, *str;
 
@@ -54,11 +54,11 @@ errcode_t echo() {
   }
 }
 
-errcode_t history() {
+errcode_t history(command_t cmd) {
 	return ERR_NO_ERROR;
 }
 
-errcode_t send_signal() {
+errcode_t send_signal(command_t cmd) {
 	token_t token;
 	char *arg, *str;
 
@@ -103,19 +103,19 @@ errcode_t send_signal() {
 	return ERR_NO_ERROR;
 }
 
-errcode_t jobs() {
+errcode_t jobs(command_t cmd) {
 	return ERR_NO_ERROR;
 }
 
-errcode_t fg() {
+errcode_t fg(command_t cmd) {
 	return ERR_NO_ERROR;
 }
 
-errcode_t bg() {
+errcode_t bg(command_t cmd) {
 	return ERR_NO_ERROR;
 }
 
-errcode_t set() {
+errcode_t set(command_t cmd) {
   // for (char **env = envp; *env != 0; env++)
   // {
   //   char *thisEnv = *env;
