@@ -8,12 +8,13 @@
 #include <unistd.h>
 
 #include <common.h>
+#include <builtin.h>
 #include <execution.h>
 #include <io.h>
 #include <lexing.h>
 
 
-char username[USERNAME_MAX+1] = "unknown";
+char *username;
 char hostname[HOSTNAME_MAX+1];
 
 
@@ -50,7 +51,8 @@ int main(int argc, const char *argv[], const char *envp[]) {
 	set_input_stream(stdin);
 	set_output_stream(stdout);
 
-	getlogin_r(username, USERNAME_MAX);
+	//getlogin_r(username, USERNAME_MAX);
+	username = getenv("LOGNAME");
 	gethostname(hostname, HOSTNAME_MAX);
 	getcwd(cwd, sizeof(cwd));
 

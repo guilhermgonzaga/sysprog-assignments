@@ -4,25 +4,29 @@
  */
 
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 #include <common.h>
-#include <execution.h>
 #include <builtin.h>
+#include <execution.h>
 
 
 char cwd[PATH_MAX+1];
 
 
-errcode_t exec_external(char *argv[], _Bool wait_child, int *return_code) {
+errcode_t exec_external(char *argv[], _Bool wait_completion, int *return_code) {
 	errcode_t ret = ERR_NO_ERROR;
-	int status;
 	pid_t pid = fork();
 
 	if (pid == 0) {
 		execvp(argv[0], argv);
-		exit(EXIT_SUCCESS);
+		// TODO print error message
+		exit(EXIT_FAILURE);  // Error: exec* should not return
 	}
-	else if (wait_child) {
+	else if (wait_completion) {
+		int status;
 		waitpid(pid, &status, 0);
 
 		if (!WIFEXITED(status)) {
@@ -38,31 +42,26 @@ errcode_t exec_external(char *argv[], _Bool wait_child, int *return_code) {
 }
 
 
-errcode_t exec_builtin(enum cmd command) {
-	switch (command) {
-	case CMD_CD:
-		return cd();
-	case CMD_ECHO:
-		return echo();
-	case CMD_HISTORY:
-		return history();
-	case CMD_KILL:
-		return kill();
-	case CMD_JOBS:
-		return jobs();
-	case CMD_FG:
-		return fg();
-	case CMD_BG:
-		return bg();
-	case CMD_SET:
-		return set();
+errcode_t exec_builtin(command_t cmd) {
+	switch (cmd.name) {
+	case CD:
+		return cd(cmd);
+	case ECHO:
+		return echo(cmd);
+	case FG:
+		return fg(cmd);
+	case BG:
+		return bg(cmd);
+	case HISTORY:
+		return history(cmd);
+	case JOBS:
+		return jobs(cmd);
+	case KILL:
+		return send_signal(cmd);
+	case SET:
+		return set(cmd);
 	default:
-		// Error
+		return ERR_GENERIC;
 		break;
 	}
-
-	return ERR_NO_ERROR;
 }
-
-
-// TODO search executables in evironment variables
