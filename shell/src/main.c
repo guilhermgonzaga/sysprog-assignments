@@ -1,8 +1,3 @@
-/**
- * @file main.c
- * Description.
- */
-
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -12,6 +7,7 @@
 #include <execution.h>
 #include <io.h>
 #include <lexing.h>
+#include <parsing.h>
 
 
 char *username;
@@ -33,34 +29,33 @@ void make_args(char ***args, size_t *capacity) {
 		}
 
 		(*args)[i] = strndup(token.begin, token.length);
-
+		parse((*args)[i], *args);
 		i++;
 	}
-	(*args)[i] = NULL;
 
-	for (size_t j = 0; j < *capacity; j++) {
-		fprintf(stderr, "%p\t%s\n", (*args)[j], (*args)[j]);
-	}
+	(*args)[i] = NULL;
 }
 
 
 int main(int argc, const char *argv[], const char *envp[]) {
 	char **args = NULL;
 	size_t capacity = 1;
+	char MYPATH[PATH_MAX+1] = "MYPATH=";
+
+	strcat(MYPATH, getenv("PATH"));
+	putenv(MYPATH);
 
 	set_input_stream(stdin);
 	set_output_stream(stdout);
 
-	//getlogin_r(username, USERNAME_MAX);
 	username = getenv("LOGNAME");
 	gethostname(hostname, HOSTNAME_MAX);
 	getcwd(cwd, sizeof(cwd));
 
 	printf("%s@%s:%s$ ", username, hostname, cwd);
 	while (read_cmdline() == ERR_NO_ERROR) {
+		history_append(cmdline_buffer);
 		make_args(&args, &capacity);
-
-		exec_external(args, 1, NULL);
 
 		printf("%s@%s:%s$ ", username, hostname, cwd);
 	}

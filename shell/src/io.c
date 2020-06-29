@@ -38,7 +38,3 @@ errcode_t read_cmdline() {
 
 	return ERR_NO_ERROR;
 }
-
-// TODO output
-
-// TODO manage IO redirection

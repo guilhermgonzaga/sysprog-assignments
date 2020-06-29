@@ -1,8 +1,3 @@
-/**
- * @file lexing.c
- * Description.
- */
-
 #include <string.h>
 
 #include <common.h>

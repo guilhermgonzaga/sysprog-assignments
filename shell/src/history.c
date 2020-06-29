@@ -1,8 +1,3 @@
-/**
- * @file history.c
- * Description.
- */
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -25,9 +20,13 @@ size_t history_latest(void) {
 errcode_t history_append(const char *cmdline) {
 	size_t length = strlen(cmdline);
 
+	if (length == 0) {
+		return ERR_GENERIC;
+	}
+
 	latest = (latest + 1) % HISTORY_SIZE;
-	reserve_space(&history_buffer[latest], length + 1);
-	strcpy(history_buffer[HISTORY_SIZE], cmdline);
+	if (reserve_space(&history_buffer[latest], length + 1) != ERR_MEMORY)
+		strcpy(history_buffer[latest], cmdline);
 
 	return ERR_NO_ERROR;
 }

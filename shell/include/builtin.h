@@ -11,6 +11,7 @@ typedef struct command {
 	enum {
 		CD,
 		ECHO,
+		EXPORT,
 		HISTORY,
 		KILL,
 		JOBS,
@@ -30,6 +31,7 @@ enum op {
 
 errcode_t cd(command_t cmd);
 errcode_t echo(command_t cmd);
+errcode_t export(command_t cmd);
 errcode_t fg(command_t cmd);
 errcode_t bg(command_t cmd);
 errcode_t history(command_t cmd);
