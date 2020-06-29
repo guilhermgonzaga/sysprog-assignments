@@ -1,7 +1,6 @@
 # Non-preemptive kernel
 
-The objective with this project was to enable multiprogramming in a very primitive kernel,
-with support for kernel threads as well as processes. There are also two implementations for mutex locks.
+The objective with this project was to enable multiprogramming in a very primitive kernel, with support for kernel threads as well as processes. There are also two implementations for mutex locks.
 
 
 ### Specification
