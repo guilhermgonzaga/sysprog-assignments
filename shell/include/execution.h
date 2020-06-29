@@ -40,6 +40,8 @@ extern char cwd[PATH_MAX+1];  // Current working directory
 
 errcode_t exec_external(char *argv[], _Bool wait_child, int *return_code);
 
+errcode_t exec_builtin(command_t cmd);
+
 errcode_t launch_process(char *argv[], process_t *process, char *envp[],pid_t pgid, int infile, int outfile, int errfile);
 
 errcode_t launch_job(char *argv[], job_t *job);

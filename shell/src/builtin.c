@@ -25,7 +25,7 @@ errcode_t cd(command_t cmd) {
 	arg = strndup(token.begin, token.length);
 
 	strcpy(lwd, cwd);
-	
+
 	if (strcmp(arg, "..") == 0) {
 		chdir("..");
 		getcwd(cwd, sizeof(cwd));
@@ -61,14 +61,14 @@ token_t token;
 	arg = strndup(token.begin, token.length);
 
 	if(arg[0] == '$'){
-		arg = strndup(token.begin+1, token.length); 
+		arg = strndup(token.begin+1, token.length);
 		str = getenv(arg);
 		printf("%s\n",arg);
 		if(str != NULL){
 			printf("Value of \"%s Environmemt Variable\" : %s\n", arg, str);
 		}
 	} else {
-		printf("%s\n", arg); 
+		printf("%s\n", arg);
 	}
 	return ERR_NO_ERROR;
 }
@@ -112,7 +112,7 @@ errcode_t history(command_t cmd) {
 
 errcode_t send_signal(command_t cmd) {
 	token_t token;
-	char *arg, *str;
+	char *arg;
 
 	get_next_token(&token);
 	arg = strndup(token.begin, token.length);
@@ -176,7 +176,7 @@ errcode_t bg(command_t cmd) {
 errcode_t set(command_t cmd) {
 	// for (char **env = envp; *env != 0; env++)
 	// {
-	//   printf("%s\n", *env);
+	// 	printf("%s\n", *env);
 	// }
 	return ERR_NO_ERROR;
 }

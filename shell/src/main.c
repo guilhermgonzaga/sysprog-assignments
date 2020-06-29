@@ -5,6 +5,7 @@
 #include <common.h>
 #include <builtin.h>
 #include <execution.h>
+#include <history.h>
 #include <io.h>
 #include <lexing.h>
 #include <parsing.h>

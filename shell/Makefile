@@ -11,7 +11,7 @@ SOURCES:=$(wildcard $(SRC)/*.c)
 # TESTS:=$(wildcard $(TEST)/*.c)
 
 CC:=gcc
-CCOPTS:=-c -g -Wall -Wextra -pedantic -I$(INCLUDE)
+CCOPTS:=-c -g -Wall -pedantic -I$(INCLUDE)
 
 
 .PHONY: clean
