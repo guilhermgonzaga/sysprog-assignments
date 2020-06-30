@@ -174,9 +174,5 @@ errcode_t bg(command_t cmd) {
 
 
 errcode_t set(command_t cmd) {
-	// for (char **env = envp; *env != 0; env++)
-	// {
-	// 	printf("%s\n", *env);
-	// }
 	return ERR_NO_ERROR;
 }

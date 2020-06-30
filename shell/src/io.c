@@ -29,7 +29,6 @@ errcode_t read_cmdline() {
 
 	int cmdline_len = strnlen(cmdline_buffer, ARG_MAX);
 
-	// TODO handle trailing backslash for multiple input lines
 
 	if (cmdline_buffer[cmdline_len-1] == '\n') {
 		cmdline_buffer[cmdline_len-1] = '\0';

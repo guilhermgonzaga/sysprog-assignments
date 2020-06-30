@@ -25,8 +25,5 @@ errcode_t parse(char *argv, char *argvs[]) {
 		ret = exec_builtin((command_t){HISTORY});
 	else if (strcmp(argv, "jobs") == 0)
 		ret = exec_builtin((command_t){JOBS});
-	// else
-	// 	ret = exec_external(argvs, 1, NULL);
-
 	return ret;
 }
