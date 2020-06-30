@@ -26,7 +26,6 @@ typedef struct job {
 	_Bool notified;            // true if user told about stopped job
 	int in, out, err;          // IO channels
 	pid_t pgid;                // process group ID
-	char *command;             // command line, used for messages
 	process_t *first_process;  // list of processes in this job
 	struct job *next;          // next active job
 } job_t;

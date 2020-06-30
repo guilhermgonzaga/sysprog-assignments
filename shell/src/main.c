@@ -14,6 +14,7 @@
 char *username;
 char hostname[HOSTNAME_MAX+1];
 
+int exec_extrn = 0;
 
 void make_args(char ***args, size_t *capacity) {
 	size_t i = 0;
@@ -30,7 +31,8 @@ void make_args(char ***args, size_t *capacity) {
 		}
 
 		(*args)[i] = strndup(token.begin, token.length);
-		parse((*args)[i], *args);
+		if(parse((*args)[i], *args) == -1)
+			exec_extrn = 1;
 		i++;
 	}
 
@@ -57,6 +59,8 @@ int main(int argc, const char *argv[], const char *envp[]) {
 	while (read_cmdline() == ERR_NO_ERROR) {
 		history_append(cmdline_buffer);
 		make_args(&args, &capacity);
+		if(exec_extrn)
+			exec_external(args, 1, NULL);
 
 		printf("%s@%s:%s$ ", username, hostname, cwd);
 	}
