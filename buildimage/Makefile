@@ -59,15 +59,15 @@ boot: $(BIN)/image
 # Clean up!
 # Cannot delete bootblock.o or buildimage.given!
 clean:
-	@cd $(OBJ) && rm -fv buildimage.o kernel.o
-	@cd $(BIN) && rm -fv buildimage kernel image bootblock
+	cd $(OBJ) && rm -fv buildimage.o kernel.o
+	cd $(BIN) && rm -fv buildimage kernel image bootblock
 
 # No, really, clean up!
 distclean: clean
-	@rm -fv -- *~
-	@rm -fv -- \#*
-	@rm -fv -- *.bak
-	@rm -fv serial.out bochsout.txt
+	rm -fv -- *~
+	rm -fv -- \#*
+	rm -fv -- *.bak
+	rm -fv serial.out bochsout.txt
 
 
 # How to build the kernel
