@@ -6,7 +6,7 @@
 	.globl BigIntAssign, BigIntAdd, BigIntSub
 	.globl BigIntMul, BigIntDiv, BigIntMod
 	.globl BigIntAnd, BigIntOr, BigIntXor
-	.globl BigIntShl, BigIntShar, BigIntNeg
+	.globl BigIntShl, BigIntShar, BigIntNot
 	.globl BigIntCompl
 
 
@@ -600,9 +600,9 @@ BigIntShar:
 	ret
 
 
-// BigIntNeg: x = ~x
-// void BigIntNeg(BigInt x);
-BigIntNeg:
+// BigIntNot: x = ~x
+// void BigIntNot(BigInt x);
+BigIntNot:
 	xorq	%r10, %r10
 
 	.L1neg:
@@ -631,7 +631,7 @@ BigIntCompl:
 	movl	$1, 508(%rsp)		# initialize temporary BigInt to 1
 
 	movq	%rbx, %rdi		# set parameter
-	call	BigIntNeg
+	call	BigIntNot
 
 	movq	%rbx, %rdx		# set parameters
 	movq	%rsp, %rsi

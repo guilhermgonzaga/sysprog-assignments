@@ -65,8 +65,8 @@ void BigIntShl(BigInt x, int n);
 /* BigIntShar: x = x >> n */
 void BigIntShar(BigInt x, int n);
 
-/* BigIntNeg: x = ~x */
-void BigIntNeg(BigInt x);
+/* BigIntNot: x = ~x */
+void BigIntNot(BigInt x);
 
 /* BigIntCompl: x = -x */
 void BigIntCompl(BigInt x);

@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 	       BigIntToStr(r, rs, base));
 
 	BigIntAssign(r, x);
-	BigIntNeg(r);
+	BigIntNot(r);
 	printf("\nx=%s, ~x=%s", BigIntToStr(x, xs, base),
 	       BigIntToStr(r, rs, base));
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 	       BigIntToStr(r, rs, base));
 
 	BigIntAssign(r, y);
-	BigIntNeg(r);
+	BigIntNot(r);
 	printf("\nx=%s, ~x=%s\n", BigIntToStr(y, ys, base),
 	       BigIntToStr(r, rs, base));
 
