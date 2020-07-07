@@ -23,6 +23,6 @@
  */
 
 flush_tlb_entry:
-  movl 4(%esp), %eax
-  invlpg (%eax)
-  ret
+	movl	4(%esp), %eax
+	invlpg	(%eax)
+	ret

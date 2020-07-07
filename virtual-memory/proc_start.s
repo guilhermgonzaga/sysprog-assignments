@@ -3,10 +3,10 @@
 
 .text
 .code32
-  .align 4
+	.align 4
 
 
-.globl  _start
+.globl	_start
 
 # void _start(void)
 #
@@ -18,5 +18,5 @@
 # will do an exit to properly
 # end the process.
 _start:
-  call  main
-  call  exit
+	call	main
+	call	exit
