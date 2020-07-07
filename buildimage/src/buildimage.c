@@ -1,4 +1,4 @@
-/* Author(s): Felipe Hiroshi Baron e Guilherme Gonzaga
+/* Author(s): Felipe Hiroshi Baron and Guilherme Gonzaga de Andrade
  * Creates operating system image suitable for placement on a boot disk
 */
 /* Implementation complete. */

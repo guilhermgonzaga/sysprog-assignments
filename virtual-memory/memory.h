@@ -1,4 +1,4 @@
-/* Author(s): <Your name here>
+/* Author(s): Felipe Hiroshi Baron and Guilherme Gonzaga de Andrade
  * Defines the memory manager for the kernel.
 */
 

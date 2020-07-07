@@ -1,4 +1,4 @@
-/* Author(s): <Your name here>
+/* Author(s): Felipe Hiroshi Baron and Guilherme Gonzaga de Andrade
  * Implementation of the memory manager for the kernel.
 */
 
