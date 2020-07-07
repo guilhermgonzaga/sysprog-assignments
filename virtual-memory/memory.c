@@ -95,7 +95,7 @@ void init_ptab_entry(uint32_t * table, uint32_t vaddr,
  * 'mode' sets bit [12..0] in the page table entry.
  */
 void insert_ptab_dir(uint32_t * dir, uint32_t *tab, uint32_t vaddr,
-		       uint32_t mode){
+                     uint32_t mode){
 
   uint32_t access = mode & MODE_MASK;
   int idx = get_dir_idx(vaddr);

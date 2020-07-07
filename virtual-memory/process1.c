@@ -51,22 +51,22 @@ int main(void)
        */
       mbox_stat(q, &count, &space);
       if (count > 0) {
-      	/* if messages in mbox, recive first command */
-      	mbox_recv(q, &m);
-      	if (m.size != 0) {
-      		scrprintf(PLANE_ERROR_Y, PLANE_ERROR_X,
-      			  "Error: Invalid msg "
-      			  "size...exiting");
-      		exit();
-      	}
+        /* if messages in mbox, recive first command */
+        mbox_recv(q, &m);
+        if (m.size != 0) {
+          scrprintf(PLANE_ERROR_Y, PLANE_ERROR_X,
+                    "Error: Invalid msg "
+                    "size...exiting");
+          exit();
+        }
 
-      	/* fire bullet */
-      	fired = TRUE;
-      	if (loc_x < PLANE_BULLET_X_MIN)
-      		bullet_x = PLANE_LOC_X_MAX;
-      	else
-      		bullet_x = loc_x - 2;
-      	bullet_y = loc_y + 2;
+        /* fire bullet */
+        fired = TRUE;
+        if (loc_x < PLANE_BULLET_X_MIN)
+          bullet_x = PLANE_LOC_X_MAX;
+        else
+          bullet_x = loc_x - 2;
+        bullet_y = loc_y + 2;
       }
     }
 
@@ -79,38 +79,38 @@ int main(void)
           ((c =
             peek_screen(bullet_x - 1, bullet_y)) != 0)
           && (c != ' ')) {
-      	/*
-      	 * erase bullet and character at
-      	 * screen[X-1, Y]
-      	 */
-      	draw_bullet(bullet_x - 1, bullet_y, FALSE);
-      	fired = FALSE;
+        /*
+         * erase bullet and character at
+         * screen[X-1, Y]
+         */
+        draw_bullet(bullet_x - 1, bullet_y, FALSE);
+        fired = FALSE;
       }
       /* if bullet hit a character at screen[X-2, Y] */
       else if ((bullet_x - 2 >= 0) &&
-      	 ((c =
-      	   peek_screen(bullet_x - 2,
-      		       bullet_y)) != 0)
-      	 && (c != ' ')) {
-      	/*
-      	 * erase bullet and character at
-      	 * screen[X-2, Y]
-      	 */
-      	draw_bullet(bullet_x - 2, bullet_y, FALSE);
-      	fired = FALSE;
+               ((c =
+                 peek_screen(bullet_x - 2,
+                             bullet_y)) != 0)
+               && (c != ' ')) {
+        /*
+         * erase bullet and character at
+         * screen[X-2, Y]
+         */
+        draw_bullet(bullet_x - 2, bullet_y, FALSE);
+        fired = FALSE;
       }
       /* bullet did not hit a character */
       else {
-      	bullet_x -= 2;
-      	if (bullet_x < 0)
-      		fired = FALSE;
-      	else
-      		draw_bullet(bullet_x, bullet_y,
-      			    TRUE);
+        bullet_x -= 2;
+        if (bullet_x < 0)
+          fired = FALSE;
+        else
+          draw_bullet(bullet_x, bullet_y,
+                      TRUE);
       }
     }
     ms_delay(250);
-  }    	/* end forever loop */
+  }    /* end forever loop */
 
   if (q >= 0) {    /* should not be reached */
     mbox_close(q);
@@ -125,8 +125,8 @@ static void draw_plane(int loc_x, int loc_y)
   for (i = 0; i < PLANE_COLUMNS; i++)
     for (j = 0; j < PLANE_ROWS; j++)
       if (loc_x + i >= PLANE_BULLET_X_MIN)
-      		scrprintf(loc_y + j, loc_x + i, "%c",
-      			   picture[j][i]);
+        scrprintf(loc_y + j, loc_x + i, "%c",
+                  picture[j][i]);
 }
 
 static void draw_bullet(int loc_x, int loc_y, int bullet)

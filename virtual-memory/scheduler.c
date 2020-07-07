@@ -50,7 +50,7 @@ void scheduler(void)
     case SLEEPING:
       t = get_timer();
       if (current_running->wakeup_time < t)
-      	current_running->status = RUNNING;
+        current_running->status = RUNNING;
        /* FALLTHROUGH */
     case RUNNING:
       /* pick the next job to run */
@@ -59,7 +59,7 @@ void scheduler(void)
     case BLOCKED:
       /* if no more jobs, halt */
       if (current_running->next == current_running) {
-      	HALT("No more jobs.");
+        HALT("No more jobs.");
       }
 
       current_running = current_running->next;
@@ -69,7 +69,7 @@ void scheduler(void)
     case EXITED:
       /* if no more jobs, loop forever */
       if (current_running->next == current_running) {
-      	HALT("No more jobs.");
+        HALT("No more jobs.");
       }
 
       current_running = current_running->next;

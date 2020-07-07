@@ -69,9 +69,9 @@ void usb_thread_org(void)
 
 void usb_thread(void)
 {
-	int i;
+  int i;
 
-	for (i = 0; i < 10; i++)
-		usb_hub_scan_ports();
-	exit();
+  for (i = 0; i < 10; i++)
+    usb_hub_scan_ports();
+  exit();
 }

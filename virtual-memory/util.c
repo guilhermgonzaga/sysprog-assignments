@@ -179,11 +179,11 @@ void scroll(int minx, int miny, int maxx, int maxy)
   for (j = miny; j < maxy; j++) {  /* all lines */
     for (i = minx; i < maxx; i++) {  /* all characters */
       k = j * 80 + i;
-      if (j < maxy - 1)	/* if not in first line */
-      	/* move character one line up */
-      	screen[k] = screen[k + 80];
+      if (j < maxy - 1)  /* if not in first line */
+        /* move character one line up */
+        screen[k] = screen[k + 80];
       else
-      	screen[k] = 0x0700;	/* 0x0700 = blank */
+        screen[k] = 0x0700;  /* 0x0700 = blank */
     }
   }
 }

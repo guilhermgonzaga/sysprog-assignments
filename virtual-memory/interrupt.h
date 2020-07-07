@@ -15,11 +15,11 @@ enum {
  * This macro clears a line, before printing a string to the line.
  * Params: l: line, s: string, v: value
  */
-#define PRINT_INFO(l,s,v) {      			     \
-  /* clear line */    				     \
-  scrprintf(l, START_COL, "                                        "); \
-  /* print string */    				     \
-  scrprintf(l, START_COL, s, v);    			     \
+#define PRINT_INFO(l,s,v) {                                             \
+  /* clear line */                                                      \
+  scrprintf(l, START_COL, "                                        ");  \
+  /* print string */                                                    \
+  scrprintf(l, START_COL, s, v);                                        \
 }
 
 /*
@@ -31,32 +31,32 @@ enum {
  * str: Error string
  * error_code: TRUE if exception has an error code
  */
-#define INTERRUPT_HANDLER(name, str, error_code)        \
-void name (void) {      				  \
-  /* switch to kernel data segment */    		  \
-  load_data_segments(KERNEL_DS);    			  \
-  asm volatile ("movl %%esp, %0" : "=q" (esp));    	  \
-  asm volatile ("movl %%cr2, %0" : "=q" (cr2));    	  \
-  /* s points to top of the kernel stack */    	  \
-  s = (uint32_t*) esp;    				  \
-  PRINT_INFO(0, "Error %d", (str));    	  \
-  PRINT_INFO(1, "PID %d", current_running->pid);      \
-  /* print stack pointer */    			  \
-  PRINT_INFO(2, "Stack %x", ((int)s));    	  \
-  PRINT_INFO(3, "Preemptions %d",     	  \
-       current_running->preempt_count);  		  \
+#define INTERRUPT_HANDLER(name, str, error_code)            \
+void name(void) {                                           \
+  /* switch to kernel data segment */                       \
+  load_data_segments(KERNEL_DS);                            \
+  asm volatile ("movl %%esp, %0" : "=q" (esp));             \
+  asm volatile ("movl %%cr2, %0" : "=q" (cr2));             \
+  /* s points to top of the kernel stack */                 \
+  s = (uint32_t*) esp;                                      \
+  PRINT_INFO(0, "Error %d", (str));                         \
+  PRINT_INFO(1, "PID %d", current_running->pid);            \
+  /* print stack pointer */                                 \
+  PRINT_INFO(2, "Stack %x", ((int)s));                      \
+  PRINT_INFO(3, "Preemptions %d",                           \
+       current_running->preempt_count);                     \
   PRINT_INFO(4, "Yields %d", current_running->yield_count); \
-  /* Stack: (Error code), EIP, CS... */    		  \
-  PRINT_INFO(5, "EIP %x", error_code ? s[1] : s[0]);    \
-  PRINT_INFO(6, "CS %x", error_code ? s[2] : s[1]);    \
-  PRINT_INFO(7, "nested count %d",       \
-       current_running->nested_count);  		  \
+  /* Stack: (Error code), EIP, CS... */                     \
+  PRINT_INFO(5, "EIP %x", error_code ? s[1] : s[0]);        \
+  PRINT_INFO(6, "CS %x", error_code ? s[2] : s[1]);         \
+  PRINT_INFO(7, "nested count %d",                          \
+       current_running->nested_count);                      \
   PRINT_INFO(8, "Error code %x", error_code ? s[0] : 0);    \
-  PRINT_INFO(9, "Hardware mask %x",       \
-    current_running->int_controller_mask);  		  \
-  PRINT_INFO(10, "CR2, if pfault %x", cr2);      \
-  print_status(-1);    				  \
-  asm volatile ("hlt");    				  \
+  PRINT_INFO(9, "Hardware mask %x",                         \
+    current_running->int_controller_mask);                  \
+  PRINT_INFO(10, "CR2, if pfault %x", cr2);                 \
+  print_status(-1);                                         \
+  asm volatile ("hlt");                                     \
 }
 
 /* Copy the segment descriptor index "seg" into the DS and ES registers */

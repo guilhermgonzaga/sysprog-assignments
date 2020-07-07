@@ -150,7 +150,7 @@ void select_page_directory(void)
 void create_gate(struct gate_t *entry,  /* pointer to IDT entry */
      uint32_t offset,  /* pointer to interrupt handler */
      uint16_t selector,  /* code segment containing the
-      		 * interrupt handler */
+                          * interrupt handler */
      /* type: interrupt gate, trap gate, or task gate */
      char type, char privilege /* privilege level */ )
 {
@@ -219,9 +219,9 @@ static void init_syscall(int i, syscall_t call)
 /* This function enables paging by setting CR0[31] to 1. */
 static inline void enable_paging()
 {
-  __asm__ volatile ("movl  %cr0,%eax  	\n\t"
-        "orl	$0x80000000,%eax	\n\t"
-        "movl	%eax,%cr0		\n\t");
+  __asm__ volatile ("movl  %cr0,%eax  \n\t"
+        "orl  $0x80000000,%eax \n\t"
+        "movl %eax,%cr0 \n\t");
 }
 
 

@@ -43,15 +43,15 @@ enum {
  * along with the text s. Then hang the os. Processes should not use
  * this macro.
  */
-#define ASSERT2(p, s)      		\
-do {      				\
-  if (!(p)) {    			\
+#define ASSERT2(p, s)                             \
+do {                                              \
+  if (!(p)) {                                     \
     scrprintf(0, 0, "Assertion failure: %s", s);  \
-    scrprintf(1, 0, "file: %s", __FILE__);  	\
-    scrprintf(2, 0, "line: %d", __LINE__);  	\
-    asm volatile ("cli");  		\
-    while (1);  			\
-  }    				\
+    scrprintf(1, 0, "file: %s", __FILE__);        \
+    scrprintf(2, 0, "line: %d", __LINE__);        \
+    asm volatile ("cli");                         \
+    while (1);                                    \
+  }                                               \
 } while(0)
 
 /*

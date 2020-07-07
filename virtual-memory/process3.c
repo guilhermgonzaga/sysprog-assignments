@@ -62,31 +62,31 @@ int main(void)
      */
     if (i < 5000) {
       if (wait) {
-      	/*
-      	 * wait until process4 sends token
-      	 * (when no more messages in q)
-      	 */
-      	mbox_recv(fi, &token);
-      	if (token.size != 0) {
-      		scrprintf(PROC3_LINE, 0, "Error:   ");
-      		scrprintf(PROC3_LINE + 1, 0,
-      			  "Invalid control msg");
-      		exit();
-      	}
+        /*
+         * wait until process4 sends token
+         * (when no more messages in q)
+         */
+        mbox_recv(fi, &token);
+        if (token.size != 0) {
+          scrprintf(PROC3_LINE, 0, "Error:   ");
+          scrprintf(PROC3_LINE + 1, 0,
+                    "Invalid control msg");
+          exit();
+        }
 
-      	wait = FALSE;
+        wait = FALSE;
       } else {
-      	mbox_stat(q, &count, &space);
-      	/*
-      	 * if enough space in shared buffer q
-      	 * for message m
-      	 */
-      	if (space < ACTUAL_MSG_SIZE(m->size)) {
-      		token.size = 0;
-      		/* send token to process4 */
-      		mbox_send(fo, &token);
-      		wait = TRUE;
-      	}
+        mbox_stat(q, &count, &space);
+        /*
+         * if enough space in shared buffer q
+         * for message m
+         */
+        if (space < ACTUAL_MSG_SIZE(m->size)) {
+          token.size = 0;
+          /* send token to process4 */
+          mbox_send(fo, &token);
+          wait = TRUE;
+        }
       }
     } else if (i == 5000) {
       mbox_send(fo, &token);

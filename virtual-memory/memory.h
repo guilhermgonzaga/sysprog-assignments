@@ -48,9 +48,9 @@ enum {
 
 /* TODO: Structure of an entry in the page map */
 typedef struct {
-	uint32_t	swap_loc;
-	uint32_t	vaddr;
-	// Fill in ...
+  uint32_t swap_loc;
+  uint32_t vaddr;
+  // Fill in ...
 } page_map_entry_t;
 
 

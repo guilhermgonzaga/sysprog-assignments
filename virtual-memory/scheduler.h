@@ -33,18 +33,18 @@ extern int critical_count;
  * functions in C, and have enter/leave_critical call their C
  * implementation.  Take care to save the registers, though!)
  */
-#define TRACE(s)      				\
-  do {    						\
-  scrprintf(critical_count % 10 + 2, 0, "%d", critical_count / 10);  \
-  scrprintf(critical_count % 10 + 2, 10, "%s", (s));    	\
-  scrprintf(critical_count % 10 + 2, 20, "%s", __FILE__);    \
-  scrprintf(critical_count % 10 + 2, 35, "%d", __LINE__);    \
-  scrprintf(critical_count % 10 + 2, 45,  "%d",  		\
-    current_running->disable_count);  		\
-  scrprintf(critical_count % 10 + 2, 50, "%d", current_running->pid);  \
-  scrprintf(critical_count % 10 + 2, 55, "%d",    		\
-    current_running->nested_count);  			\
-  critical_count++;    				\
+#define TRACE(s)                                                      \
+  do {                                                                \
+  scrprintf(critical_count % 10 + 2, 0, "%d", critical_count / 10);   \
+  scrprintf(critical_count % 10 + 2, 10, "%s", (s));                  \
+  scrprintf(critical_count % 10 + 2, 20, "%s", __FILE__);             \
+  scrprintf(critical_count % 10 + 2, 35, "%d", __LINE__);             \
+  scrprintf(critical_count % 10 + 2, 45,  "%d",                       \
+    current_running->disable_count);                                  \
+  scrprintf(critical_count % 10 + 2, 50, "%d", current_running->pid); \
+  scrprintf(critical_count % 10 + 2, 55, "%d",                        \
+    current_running->nested_count);                                   \
+  critical_count++;                                                   \
   } while (0)
 #else
 #define TRACE(s)
@@ -84,24 +84,24 @@ extern int critical_count;
  * argument to STI_FL() to enable the interrupts only if the
  * interrupts was enabled prior to invoking CLI_FL().
  */
-#define CLI_FL()      				      \
-({      						      \
-  long eflags;    					      \
-  __asm__ volatile ("pushfl           # Store EFlags on stack\n"        \
-        "popl   %0        # Store Eflags in general reg.\n" \
-        "cli              # Disable interrupts          \n" \
-        : "=r"(eflags) );				      \
-  eflags;    						      \
+#define CLI_FL()                                                  \
+({                                                                \
+  long eflags;                                                    \
+  __asm__ volatile ("pushfl           # Store EFlags on stack\n"  \
+        "popl   %0        # Store Eflags in general reg.\n"       \
+        "cli              # Disable interrupts          \n"       \
+        : "=r"(eflags) );                                         \
+  eflags;                                                         \
 })
 
 
 /* Enable interrupts if the IF bit in the indicated EFlags value is set. */
-#define STI_FL(eflags)      				     \
-  __asm__ volatile ("btl $9,%0     # Check IF bit in stored EFlags \n" \
-        "jnc 1f        # If bit == 0, just return      \n" \
-        "sti           # If bit == 1, enable int.      \n" \
-        "1:                                            \n" \
-        :						     \
+#define STI_FL(eflags)                                                  \
+  __asm__ volatile ("btl $9,%0     # Check IF bit in stored EFlags \n"  \
+        "jnc 1f        # If bit == 0, just return      \n"              \
+        "sti           # If bit == 1, enable int.      \n"              \
+        "1:                                            \n"              \
+        :                                                               \
         :"rm"(eflags))
 
 

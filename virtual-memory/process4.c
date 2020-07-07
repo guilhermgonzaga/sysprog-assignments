@@ -53,29 +53,29 @@ int main(void)
 
     if (i < 5000) {
       if (wait) {
-      	/*
-      	 * wait until process3 sends token
-      	 * (when enough room in q)
-      	 */
-      	mbox_recv(fi, &token);
-      	if (token.size != 0) {
-      		scrprintf(PROC4_LINE, 15, "Error:   ");
-      		scrprintf(PROC4_LINE + 1, 15,
-      			  "Invalid control msg");
-      		exit();
-      	}
+        /*
+         * wait until process3 sends token
+         * (when enough room in q)
+         */
+        mbox_recv(fi, &token);
+        if (token.size != 0) {
+          scrprintf(PROC4_LINE, 15, "Error:   ");
+          scrprintf(PROC4_LINE + 1, 15,
+                    "Invalid control msg");
+          exit();
+        }
 
-      	wait = FALSE;
+        wait = FALSE;
       } else {
-      	mbox_stat(q, &count, &space);
-      	/*
-      	 * if no messages in shared buffer, send token
-      	 */
-      	if (count == 0) {
-      		token.size = 0;
-      		mbox_send(fo, &token);
-      		wait = TRUE;
-      	}
+        mbox_stat(q, &count, &space);
+        /*
+         * if no messages in shared buffer, send token
+         */
+        if (count == 0) {
+          token.size = 0;
+          mbox_send(fo, &token);
+          wait = TRUE;
+        }
       }
     } else if (i == 5000) {
       mbox_send(fo, &token);
@@ -93,9 +93,9 @@ int main(void)
 
     for (j = 0; j < size; j++)
       if (m->body[j] != c) {
-      	scrprintf(PROC4_LINE, 15, "Error:   ");
-      	scrprintf(PROC4_LINE + 1, 15, "Invalid data");
-      	exit();
+        scrprintf(PROC4_LINE, 15, "Error:   ");
+        scrprintf(PROC4_LINE + 1, 15, "Invalid data");
+        exit();
       }
   }
 

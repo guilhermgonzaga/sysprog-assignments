@@ -61,9 +61,9 @@ int main(void)
     /* clear screen */
     if (same_string("clear", argv[0])) {
       if (argc == 1) {
-      	/* Clear shell window */
-      	clear_screen(SHELL_MINX, SHELL_MINY, MAXX, MAXY);
-      	cursor = 0;
+        /* Clear shell window */
+        clear_screen(SHELL_MINX, SHELL_MINY, MAXX, MAXY);
+        cursor = 0;
       } else {
         shprintf("Usage: %s\n", argv[0]);
       }
@@ -74,68 +74,68 @@ int main(void)
      */
     else if (same_string("fire", argv[0])) {
       if (argc == 1) {
-      	if (q >= 0) {
-      		msg_t m;
-      		m.size = 0;
-      		mbox_send(q, &m);
-      	} else {
-      		shprintf("Mailboxes not available\n");
-      	}
+        if (q >= 0) {
+          msg_t m;
+          m.size = 0;
+          mbox_send(q, &m);
+        } else {
+          shprintf("Mailboxes not available\n");
+        }
       } else
         shprintf("Usage: %s\n", argv[0]);
     }
     /* Close shell */
     else if (same_string("exit", argv[0])) {
       if (argc == 1) {
-      	shprintf("Goodbye");
-      	exit();
+        shprintf("Goodbye");
+        exit();
       } else
         shprintf("Usage: %s\n", argv[0]);
     } else if (same_string("ls", argv[0])) {
       if (argc == 1) {
-      	rc = readdir(buf);
+        rc = readdir(buf);
         if (rc < 0) {
           shprintf("Read error.\n");
           continue;
         }
-       	dir = (struct directory_t *) buf;
+        dir = (struct directory_t *) buf;
 
-      	/* number of proceses in directory */
-      	p = 0;
-      	/* parse directory */
-      	while (dir->location != 0) {
-      		shprintf("process %d - location: %d, size: %d\n",
+        /* number of proceses in directory */
+        p = 0;
+        /* parse directory */
+        while (dir->location != 0) {
+          shprintf("process %d - location: %d, size: %d\n",
               p++, dir->location, dir->size);
-      		dir++;
-      	}
+          dir++;
+        }
 
-      	if (p == 0) {
-      		shprintf("Process not found.\n");
-      	} else {
-      		shprintf("%d process(es).\n", p);
-      	}
+        if (p == 0) {
+          shprintf("Process not found.\n");
+        } else {
+          shprintf("%d process(es).\n", p);
+        }
       } else {
         shprintf("Usage: %s\n", argv[0]);
       }
     } else if (same_string("load", argv[0])) {
       if (argc == 2) {
-      	rc = readdir(buf);
+        rc = readdir(buf);
         if (rc < 0) {
           shprintf("Read error.\n");
           continue;
         }
 
-      	dir = (struct directory_t *) buf;
-      	n = atoi(argv[1]);
-      	for (p = 0; p < n && dir->location != 0;
-      	     p++, dir++);
+        dir = (struct directory_t *) buf;
+        n = atoi(argv[1]);
+        for (p = 0; p < n && dir->location != 0;
+             p++, dir++);
 
-      	if (dir->location != 0) {
-      		loadproc(dir->location, dir->size);
-      		shprintf("Done.\n");
-      	} else {
-      		shprintf("File not found.\n");
-      	}
+        if (dir->location != 0) {
+          loadproc(dir->location, dir->size);
+          shprintf("Done.\n");
+        } else {
+          shprintf("File not found.\n");
+        }
       } else {
         shprintf("usage: %s  'process number'\n", argv[0]);
       }
@@ -181,7 +181,7 @@ static int parse_line(char *line, char *argv[SHELL_SIZEX])
       argv[argc++] = s;
       /* And goto next blank character (or end of line) */
       while ((*s != ' ') && (*s != '\0'))
-      	s++;
+        s++;
     }
   }
 }

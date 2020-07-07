@@ -88,9 +88,9 @@ void thread2(void)
     if (shared_var % 3 == 0) {
       /* Signal or broadcast condition for thread3 */
       if (shared_var < 20)
-      	condition_signal(&c0mod3);
+        condition_signal(&c0mod3);
       else
-      	condition_broadcast(&c0mod3);
+        condition_broadcast(&c0mod3);
     }
     print_trace(2, RUNNING);
     /* Leave monitor */
@@ -149,9 +149,9 @@ void thread3(void)
        * broadcast to the other thread
        */
       if (shared_var < 20)
-      	condition_signal(&cnot0mod3);
+        condition_signal(&cnot0mod3);
       else
-      	condition_broadcast(&cnot0mod3);
+        condition_broadcast(&cnot0mod3);
     }
     print_trace(3, RUNNING);
     /* leave monitor */

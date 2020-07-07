@@ -9,18 +9,18 @@
 
 #define PROGNAME "asmdefs"
 
-#define ADEF(stag, member) do {      			   \
-  char name[] = #stag "_" #member;    		   \
-  char *p = name;    					   \
-  while (*p != '\0') {    				   \
-    *p = toupper(*p);  				   \
-    ++p;  						   \
-  }    						   \
-  if (printf("#define %s %ld\n", name,    		   \
-       offsetof(struct stag, member)) < 0) {  	   \
+#define ADEF(stag, member) do {                                \
+  char name[] = #stag "_" #member;                             \
+  char *p = name;                                              \
+  while (*p != '\0') {                                         \
+    *p = toupper(*p);                                          \
+    ++p;                                                       \
+  }                                                            \
+  if (printf("#define %s %ld\n", name,                         \
+       offsetof(struct stag, member)) < 0) {                   \
     fprintf(stderr, PROGNAME ": printing to stdout failed\n"); \
-    exit(EXIT_FAILURE);  				   \
-  }    						   \
+    exit(EXIT_FAILURE);                                        \
+  }                                                            \
 } while (0)
 
 #include "kernel.h"
