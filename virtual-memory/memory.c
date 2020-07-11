@@ -1,6 +1,6 @@
 /* Author(s): Felipe Hiroshi Baron and Guilherme Gonzaga de Andrade
  * Implementation of the memory manager for the kernel.
-*/
+ */
 
 /* memory.c
  *
@@ -38,22 +38,22 @@ static uint32_t *kernel_ptabs[N_KERNEL_PTS];
 /* Main API */
 
 /* Use virtual address to get index in page directory. */
-uint32_t get_dir_idx(uint32_t vaddr){
+uint32_t get_dir_idx(uint32_t vaddr) {
   return (vaddr & PAGE_DIRECTORY_MASK) >> PAGE_DIRECTORY_BITS;
 }
 
 /* Use virtual address to get index in a page table. */
-uint32_t get_tab_idx(uint32_t vaddr){
+uint32_t get_tab_idx(uint32_t vaddr) {
   return (vaddr & PAGE_TABLE_MASK) >> PAGE_TABLE_BITS;
 }
 
 /* TODO: Returns physical address of page number i */
-uint32_t* page_addr(int i){
+uint32_t* page_addr(int i) {
 
 }
 
 /* Set flags in a page table entry to 'mode' */
-void set_ptab_entry_flags(uint32_t * pdir, uint32_t vaddr, uint32_t mode){
+void set_ptab_entry_flags(uint32_t * pdir, uint32_t vaddr, uint32_t mode) {
   uint32_t dir_idx = get_dir_idx((uint32_t) vaddr);
   uint32_t tab_idx = get_tab_idx((uint32_t) vaddr);
   uint32_t dir_entry;
@@ -83,7 +83,7 @@ void set_ptab_entry_flags(uint32_t * pdir, uint32_t vaddr, uint32_t mode){
  * application.
  */
 void init_ptab_entry(uint32_t * table, uint32_t vaddr,
-         uint32_t paddr, uint32_t mode){
+         uint32_t paddr, uint32_t mode) {
   int index = get_tab_idx(vaddr);
   table[index] =
     (paddr & PE_BASE_ADDR_MASK) | (mode & ~PE_BASE_ADDR_MASK);
@@ -95,7 +95,7 @@ void init_ptab_entry(uint32_t * table, uint32_t vaddr,
  * 'mode' sets bit [12..0] in the page table entry.
  */
 void insert_ptab_dir(uint32_t * dir, uint32_t *tab, uint32_t vaddr,
-                     uint32_t mode){
+                     uint32_t mode) {
 
   uint32_t access = mode & MODE_MASK;
   int idx = get_dir_idx(vaddr);
@@ -108,7 +108,7 @@ void insert_ptab_dir(uint32_t * dir, uint32_t *tab, uint32_t vaddr,
  * Marks page as pinned if pinned == TRUE.
  * Swap out a page if no space is available.
  */
-int page_alloc(int pinned){
+int page_alloc(int pinned) {
 
 }
 
@@ -117,14 +117,16 @@ int page_alloc(int pinned){
  * This method is only called once by _start() in kernel.c, and is only
  * supposed to set up the page directory and page tables for the kernel.
  */
-void init_memory(void){
+void init_memory(void) {
+  page_map_entry_t page = {.p = 1, .rw = 1, .pwt = 1, .d = 1};
 
+  scrprintf(7, 0, "%d", *(((uint32_t *) &page) + 3));
 }
 
 
 /* TODO: Set up a page directory and page table for a new
  * user process or thread. */
-void setup_page_table(pcb_t * p){
+void setup_page_table(pcb_t * p) {
 
 }
 
@@ -132,19 +134,19 @@ void setup_page_table(pcb_t * p){
  * This method is called from interrupt.c: exception_14().
  * Should handle demand paging.
  */
-void page_fault_handler(void){
+void page_fault_handler(void) {
 
 }
 
-/* Get the sector number on disk of a process image
+/* Get the sector number on disk of a process image.
  * Used for page swapping. */
-int get_disk_sector(page_map_entry_t * page){
+int get_disk_sector(page_map_entry_t * page) {
   return page->swap_loc +
     ((page->vaddr - PROCESS_START) / PAGE_SIZE) * SECTORS_PER_PAGE;
 }
 
-/* TODO: Swap i-th page in from disk (i.e. the image file) */
-void page_swap_in(int i){
+// TODO: Swap i-th page in from disk (i.e. the image file)
+void page_swap_in(int i) {
 
 }
 
@@ -152,14 +154,13 @@ void page_swap_in(int i){
  *
  * Write the page back to the process image.
  * There is no separate swap space on the USB.
- *
  */
-void page_swap_out(int i){
+void page_swap_out(int i) {
 
 }
 
 
-/* TODO: Decide which page to replace, return the page number  */
-int page_replacement_policy(void){
+// TODO: Decide which page to replace, return the page number
+int page_replacement_policy(void) {
 
 }
