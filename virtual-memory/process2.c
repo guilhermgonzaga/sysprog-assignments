@@ -18,8 +18,8 @@ int main(void)
   for (i = 0; i <= 100; i++) {
     res = rec(i);
 
-    scrprintf(MATH_LINE, 0, "PID %d : 1 + ... + %d = %d ",
-        getpid(), i, res);
+    scrprintf(MATH_LINE, 0, "PID %d : 0 + ... + %d = %d ",
+              getpid(), i, res);
 
     ms_delay(700);
     yield();
@@ -29,7 +29,7 @@ int main(void)
   return 0;
 }
 
-/* calculate 1+ ... + n */
+/* calculate 0 + ... + n */
 static int rec(int n)
 {
   if (n % 37 == 0)

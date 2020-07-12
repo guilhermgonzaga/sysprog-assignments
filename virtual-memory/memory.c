@@ -118,9 +118,7 @@ int page_alloc(int pinned) {
  * supposed to set up the page directory and page tables for the kernel.
  */
 void init_memory(void) {
-  page_map_entry_t page = {.p = 1, .rw = 1, .pwt = 1, .d = 1};
 
-  scrprintf(7, 0, "%d", *(((uint32_t *) &page) + 3));
 }
 
 
