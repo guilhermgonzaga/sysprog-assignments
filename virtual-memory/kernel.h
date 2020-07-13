@@ -72,8 +72,8 @@ enum {
    */
   GDT_SIZE = 7,
   IDT_SIZE = 49,
-  IRQ_START = 32,    /* remapped irq0 IDT entry */
-  INTERRUPT_GATE = 0x0E,  /* interrupt gate descriptor */
+  IRQ_START = 32,        /* remapped irq0 IDT entry */
+  INTERRUPT_GATE = 0x0E, /* interrupt gate descriptor */
   IDT_SYSCALL_POS = 48,  /* system call IDT entry */
 };
 
@@ -83,9 +83,9 @@ enum {
  * about a thread or process
  */
 struct pcb {
-  uint32_t pid;    /* Process id of this process */
-  uint32_t is_thread;    /* Thread or process */
-  uint32_t user_stack;  /* Pointer to base of the user stack */
+  uint32_t pid;        /* Process id of this process */
+  uint32_t is_thread;  /* Thread or process */
+  uint32_t user_stack; /* Pointer to base of the user stack */
   /*
    * Used to set up kernel stack, and temporary save esp in
    * scheduler()/dispatch()
@@ -103,20 +103,20 @@ struct pcb {
   uint32_t disable_count;
   /* Number of times process has been preempted */
   uint32_t preempt_count;
-  uint32_t nested_count;  /* Number of nested interrupts */
-  uint32_t start_pc; /* Start address of a process or thread */
-  uint32_t ds;    /* Data segment selector */
-  uint32_t cs;    /* Code segment selector */
-  uint32_t fault_addr;  /* Location that generated a page fault */
-  uint32_t error_code;  /* Error code associated with a page fault */
-  uint32_t swap_loc;  /* Swap space base address */
-  uint32_t swap_size;  /* Size of this process in sectors */
+  uint32_t nested_count; /* Number of nested interrupts */
+  uint32_t start_pc;     /* Start address of a process or thread */
+  uint32_t ds;           /* Data segment selector */
+  uint32_t cs;           /* Code segment selector */
+  uint32_t fault_addr;   /* Location that generated a page fault */
+  uint32_t error_code;   /* Error code associated with a page fault */
+  uint32_t swap_loc;     /* Swap space base address */
+  uint32_t swap_size;    /* Size of this process in sectors */
   /* True before this process has had a chance to run */
   uint32_t first_time;
-  uint32_t priority;  /* This process' priority */
-  uint32_t status;  /* RUNNING, BLOCKED, SLEEPING or EXITED */
+  uint32_t priority;         /* This process' priority */
+  uint32_t status;           /* RUNNING, BLOCKED, SLEEPING or EXITED */
   uint32_t page_fault_count; /* Number of page faults */
-  uint32_t yield_count;  /* Number of yields made by this process */
+  uint32_t yield_count;      /* Number of yields made by this process */
   /* Interrupt controller mask (bit x = 0, enable irq x). */
   uint32_t int_controller_mask;
   /*

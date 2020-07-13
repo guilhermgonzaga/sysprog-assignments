@@ -47,9 +47,15 @@ uint32_t get_tab_idx(uint32_t vaddr) {
   return (vaddr & PAGE_TABLE_MASK) >> PAGE_TABLE_BITS;
 }
 
-/* TODO: Returns physical address of page number i */
+// TODO: Returns physical address of page number i
 uint32_t* page_addr(int i) {
+  uint32_t *addr = NULL;
 
+  if (i <= PAGEABLE_PAGES) {
+    addr = (page_map[i].ppage_num << PE_BASE_ADDR_BITS);
+  }
+
+  return addr;
 }
 
 /* Set flags in a page table entry to 'mode' */
@@ -109,7 +115,20 @@ void insert_ptab_dir(uint32_t * dir, uint32_t *tab, uint32_t vaddr,
  * Swap out a page if no space is available.
  */
 int page_alloc(int pinned) {
+  // FIXME: Assume the number of pages is less than PAGEABLE_PAGES
+  int page_idx = page_replacement_policy();
 
+  if (page_map[page_idx].p) {
+    page_swap_out(page_map[page_idx].ppage_num);
+  }
+
+  page_map[page_idx].p = 1;
+
+  if (pinned == TRUE) {
+    page_map[page_idx].pinned = TRUE;
+  }
+
+  return page_idx;
 }
 
 /* TODO: Set up kernel memory for kernel threads to run.
@@ -118,7 +137,26 @@ int page_alloc(int pinned) {
  * supposed to set up the page directory and page tables for the kernel.
  */
 void init_memory(void) {
+  // for (int i = 0; i < PAGEABLE_PAGES; i++) {
+  //   page_map[i] = (page_map_entry_t) {
+  //     .swap_loc = 0,
+  //     .vaddr = 0,
+  //     .ppage_num = 0,
+  //     .bits = 0,
+  //   };
+  // }
 
+  // TODO alloc page for directory page
+  kernel_pdir = KERNEL_LOCATION;
+  page_map[page_alloc(TRUE)];
+
+  for (int i = 0; i < N_KERNEL_PTS; i++) {
+    page_alloc(TRUE);
+
+    for (int j = 0; j < (MAX_PHYSICAL_MEMORY >> PE_BASE_ADDR_BITS); j++) {
+      // TODO: alloc kernel pages
+    }
+  }
 }
 
 
@@ -158,7 +196,23 @@ void page_swap_out(int i) {
 }
 
 
-// TODO: Decide which page to replace, return the page number
+/* Decide which page to replace, return the page number. */
 int page_replacement_policy(void) {
+  int min_idx = 0;
+  uint8_t bits, bits_nru = 4;
 
+  for (int i = 0; i < PAGEABLE_PAGES; i++) {
+    bits_nru = (page_map[min_idx].a << 1) | page_map[min_idx].d;
+    bits = (page_map[i].a << 1) | page_map[i].d;
+
+    if (!page_map[i].p) {
+      return i;
+    }
+
+    if (bits < bits_nru) {
+      min_idx = i;
+    }
+  }
+
+  return min_idx;
 }

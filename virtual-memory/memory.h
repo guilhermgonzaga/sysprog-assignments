@@ -52,15 +52,21 @@ typedef struct {
   uint32_t swap_loc;
   uint32_t vaddr;     /* virtual address */
   uint32_t ppage_num; /* physical page number */
+  bool_t pinned;
 
   /* page directory/table entry bits */
-  uint8_t p: 1;   /* present */
-  uint8_t rw: 1;  /* read/write */
-  uint8_t us: 1;  /* user/supervisor */
-  uint8_t pwt: 1; /* page write-through */
-  uint8_t pcd: 1; /* page cache disable */
-  uint8_t a: 1;   /* accessed */
-  uint8_t d: 1;   /* dirty */
+  union {
+    uint32_t bits;
+    struct {
+      uint32_t p: 1;   /* present */
+      uint32_t rw: 1;  /* read/write */
+      uint32_t us: 1;  /* user/supervisor */
+      uint32_t pwt: 1; /* page write-through */
+      uint32_t pcd: 1; /* page cache disable */
+      uint32_t a: 1;   /* accessed */
+      uint32_t d: 1;   /* dirty */
+    };
+  };
 } page_map_entry_t;
 
 
@@ -77,7 +83,7 @@ uint32_t* page_addr(int i);
 
 /* Allocate a page. If necessary, swap a page out.
  * On success, return the index of the page in the page map.  On
- * failure, abort.  BUG: pages are not made free when a process
+ * failure, abort. BUG: pages are not made free when a process
  * exits.
  */
 int page_alloc(int pinned);
