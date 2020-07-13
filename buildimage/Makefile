@@ -28,7 +28,7 @@ KERNEL_ADDR:=0x1000
 #
 #-Wall:			All of the `-W' options combined (all warnings on)
 
-CCOPTS = -Wall -g -m32 -c -fomit-frame-pointer -O2 -fno-builtin
+CCOPTS = -Wall -g -m32 -c -fomit-frame-pointer -O2 -fno-builtin -pedantic
 
 # Linker flags
 #-nostartfiles:	Do not use the standard system startup files when linking.
@@ -59,15 +59,15 @@ boot: $(BIN)/image
 # Clean up!
 # Cannot delete bootblock.o or buildimage.given!
 clean:
-	cd $(OBJ) && rm -fv buildimage.o kernel.o
-	cd $(BIN) && rm -fv buildimage kernel image bootblock
+	cd $(OBJ) && rm -f buildimage.o kernel.o
+	cd $(BIN) && rm -f buildimage kernel image bootblock
 
 # No, really, clean up!
 distclean: clean
-	rm -fv -- *~
-	rm -fv -- \#*
-	rm -fv -- *.bak
-	rm -fv serial.out bochsout.txt
+	rm -f -- *~
+	rm -f -- \#*
+	rm -f -- *.bak
+	rm -f serial.out bochsout.txt
 
 
 # How to build the kernel
