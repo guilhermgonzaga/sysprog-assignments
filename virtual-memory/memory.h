@@ -50,8 +50,8 @@ enum {
 // TODO: Structure of an entry in the page map
 typedef struct {
   uint32_t swap_loc;
-  uint32_t vaddr;     /* virtual address */
-  uint32_t ppage_num; /* physical page number */
+  uint32_t vaddr;  /* virtual address */
+  uint32_t baddr;  /* base address */
   bool_t pinned;
 
   /* page directory/table entry bits */
