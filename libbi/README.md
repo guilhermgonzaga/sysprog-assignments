@@ -3,7 +3,7 @@
 This project was built to learn x86-64 assembly control flow and data manipulation by writing a big integer arithmetic library. The implementation is in `libbi.s`, and a header file, `BigInt.h`, is available.
 
 
-#### Supported operations
+## Supported operations
 
 1. Assignment by copy
 1. Two's complement (invert sign)
@@ -15,7 +15,7 @@ This project was built to learn x86-64 assembly control flow and data manipulati
 1. Shift left and right (arithmetic)
 	- There's a caveat: shifts up to 31 bits at a time
 
-#### Features not yet functional
+### Features not yet functional
 
 1. Division/remainder
 1. Read from standard input in base 2, 8, 10 and 16
