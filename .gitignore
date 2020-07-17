@@ -1,7 +1,12 @@
-bin/
-obj/
-.vscode/
-*.out
-*.o
-*.bak
+# Common directories for binaries
+**/bin/**
+**/lib/**
+**/obj/**
+
+# Binary file patterns
 *.a
+*.o
+*.out
+
+# Specific editor/IDE configuration folders
+.vscode/
