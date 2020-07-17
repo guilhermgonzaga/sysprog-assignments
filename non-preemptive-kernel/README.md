@@ -3,7 +3,7 @@
 The objective with this project was to enable multiprogramming in a very primitive kernel, with support for kernel threads as well as processes. There are also two implementations for mutex locks.
 
 
-### Specification
+## Specification
 
 This project was based on [this one](https://www.cs.princeton.edu/courses/archive/fall19/cos318/projects/project2/p2.html), from the Department of Computer Science in Princeton University.
 

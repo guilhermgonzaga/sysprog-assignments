@@ -13,7 +13,7 @@ Assignments done for a Systems Programming course at the [UFMS Faculty of Comput
 The course is based on Carnegie Mellon's well-known "Introduction to Computer Systems" and therefore follows Bryant and O'Hallaron's [Computer Systems: A Programmer's Perspective](http://csapp.cs.cmu.edu/) textbook.
 
 
-### Description
+## Description
 
 These assignments are organized one per subdirectory, namely
 
