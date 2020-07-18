@@ -162,9 +162,9 @@ void init_memory(void) {
 
     page_map[kernel_pt_start + i] = (page_map_entry_t) {
       .vaddr = (kernel_pt_start << PAGE_TABLE_BITS) + (i * PAGE_SIZE),
-      .baddr = KERNEL_LOCATION & PE_BASE_ADDR_MASK,
       .pinned = TRUE,
-      .p = 1
+      .p = 1,
+      .baddr = KERNEL_LOCATION & PE_BASE_ADDR_MASK
     };
 
     // TODO: alloc kernel pages

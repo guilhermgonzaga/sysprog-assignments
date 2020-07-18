@@ -51,20 +51,22 @@ enum {
 typedef struct {
   uint32_t swap_loc;
   uint32_t vaddr;  /* virtual address */
-  uint32_t baddr;  /* base address */
   bool_t pinned;
 
   /* page directory/table entry bits */
+  /* total size must be 32 bits */
   union {
-    uint32_t bits;
+    uint32_t entry;
     struct {
-      uint32_t p: 1;   /* present */
-      uint32_t rw: 1;  /* read/write */
-      uint32_t us: 1;  /* user/supervisor */
-      uint32_t pwt: 1; /* page write-through */
-      uint32_t pcd: 1; /* page cache disable */
-      uint32_t a: 1;   /* accessed */
-      uint32_t d: 1;   /* dirty */
+      uint32_t p: 1;    /* present */
+      uint32_t rw: 1;   /* read/write */
+      uint32_t us: 1;   /* user/supervisor */
+      uint32_t pwt: 1;  /* page write-through */
+      uint32_t pcd: 1;  /* page cache disable */
+      uint32_t a: 1;    /* accessed */
+      uint32_t d: 1;    /* dirty */
+      uint32_t : PE_BASE_ADDR_BITS - 7;       /* padding */
+      uint32_t baddr: 32 - PE_BASE_ADDR_BITS; /* page base address */
     };
   };
 } page_map_entry_t;
