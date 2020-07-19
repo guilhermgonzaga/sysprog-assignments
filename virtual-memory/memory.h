@@ -7,6 +7,7 @@
 
 #include "kernel.h"
 
+
 enum {
   /* physical page facts */
   PAGE_SIZE = 4096,
@@ -112,5 +113,6 @@ void page_swap_out(int pageno);
 
 /* Decide which page to replace, return the page number  */
 int page_replacement_policy(void);
+
 
 #endif /* !MEMORY_H */

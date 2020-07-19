@@ -56,7 +56,7 @@ uint32_t get_tab_idx(uint32_t vaddr) {
 uint32_t *page_addr(int i) {
   uint32_t *addr = NULL;
 
-  if (i < PAGEABLE_PAGES) {
+  if (0 <= i && i < PAGEABLE_PAGES) {
     addr = (uint32_t *) (page_map[i].baddr << PE_BASE_ADDR_BITS);
   }
 
@@ -90,7 +90,7 @@ void set_ptab_entry_flags(uint32_t *pdir, uint32_t vaddr, uint32_t mode) {
 /* Initialize a page table entry
  *
  * 'vaddr' is the virtual address which is mapped to the physical
- * address 'paddr'. 'mode' sets bit [12..0] in the page table entry.
+ * address 'paddr'. 'mode' sets bit [11..0] in the page table entry.
  *
  * If user is nonzero, the page is mapped as accessible from a user
  * application.
@@ -105,7 +105,7 @@ void init_ptab_entry(uint32_t *table, uint32_t vaddr, uint32_t paddr,
 
 /* Insert a page table entry into the page directory.
  *
- * 'mode' sets bit [12..0] in the page table entry.
+ * 'mode' sets bit [11..0] in the page table entry.
  */
 void insert_ptab_dir(uint32_t *dir, uint32_t *tab, uint32_t vaddr,
                      uint32_t mode) {
@@ -123,16 +123,18 @@ void insert_ptab_dir(uint32_t *dir, uint32_t *tab, uint32_t vaddr,
  * Swap out a page if no space is available.
  */
 int page_alloc(int pinned) {
-  // FIXME: Assume the number of pages is less than PAGEABLE_PAGES
   int page_idx = page_replacement_policy();
 
   if (page_map[page_idx].p) {
     page_swap_out(page_map[page_idx].baddr);
   }
 
-  if (pinned == TRUE) {
-    page_map[page_idx].pinned = TRUE;
-  }
+  page_map[page_idx] = (page_map_entry_t) {
+    // .vaddr = ,
+    // .baddr = ,
+    .pinned = pinned,
+    .p = 1
+  };
 
   return page_idx;
 }
@@ -144,43 +146,39 @@ int page_alloc(int pinned) {
  * supposed to set up the page directory and page tables for the kernel.
  */
 void init_memory(void) {
-  // alloc kernel page directory
-  int kernel_dir_start = get_dir_idx(KERNEL_LOCATION);
+  const uint32_t pte_mode = /*... |*/ PE_P;
+  /* Number of pages to be allocated to the kernel */
+  int num_pages = MAX_PHYSICAL_MEMORY / PAGE_SIZE - 1 - N_KERNEL_PTS;
 
-  kernel_pdir = (uint32_t *) (kernel_dir_start << PAGE_DIRECTORY_BITS);
-  page_map[kernel_dir_start] = (page_map_entry_t) {
-    .pinned = TRUE,
-    .p = 1
-  };
+  /* Set up kernel page directory */
 
-  // alloc kernel page tables
+  int new_pdir = page_alloc(TRUE);
+  kernel_pdir = (uint32_t *) (new_pdir << PAGE_DIRECTORY_BITS);
 
-  int kernel_pt_start = get_tab_idx(KERNEL_LOCATION);
+  /* Set up kernel page tables */
 
   for (int i = 0; i < N_KERNEL_PTS; i++) {
-    kernel_ptabs[i] = (uint32_t *) (kernel_pt_start << PAGE_TABLE_BITS);
+    int new_ptab = page_alloc(TRUE);
+    uint32_t vaddr = (new_pdir << PAGE_DIRECTORY_BITS) |
+                     (new_ptab << PAGE_TABLE_BITS);
 
-    page_map[kernel_pt_start + i] = (page_map_entry_t) {
-      .vaddr = (kernel_pt_start << PAGE_TABLE_BITS) + (i * PAGE_SIZE),
-      .pinned = TRUE,
-      .p = 1,
-      .baddr = KERNEL_LOCATION & PE_BASE_ADDR_MASK
-    };
+    page_map[new_ptab].vaddr = vaddr;
+    insert_ptab_dir(kernel_pdir, kernel_ptabs[i], vaddr, pte_mode);
 
     // TODO: alloc kernel pages
-    for (int j = 0; j < (MAX_PHYSICAL_MEMORY / PAGE_SIZE); j++) {
-      page_alloc(TRUE);
+    for (int j = 0; j < PAGE_N_ENTRIES && num_pages > 0; j++) {
+      // page_alloc(FALSE);
+      num_pages--;
     }
   }
 
-
-  // TODO: initialize flags
   // TODO: give userland permission to access video memory (SCREEN_ADDR)
 }
 
 
 /* TODO: Set up a page directory and page table for a new
- * user process or thread. */
+ * user process or thread.
+ */
 void setup_page_table(pcb_t *p) {
 
 }

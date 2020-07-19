@@ -127,8 +127,8 @@ struct pcb {
   /* Used when job is in some waiting queue */
   struct pcb *next_blocked;
   uint32_t *page_directory; /* Virtual memory page directory */
-  struct pcb *next; /* Used when job is in the ready queue */
-  struct pcb *previous;  /* Used when job is in the ready queue */
+  struct pcb *next;         /* Used when job is in the ready queue */
+  struct pcb *previous;     /* Used when job is in the ready queue */
 } __attribute__((packed));
 
 typedef struct pcb pcb_t;
@@ -214,8 +214,10 @@ typedef struct tss_t {
 } __attribute((packed)) tss_t;
 
 /* Defining a function pointer is easier when we have a type. */
+
 /* Syscalls return an int. Don't specify arguments! */
 typedef int (*syscall_t) ();
+
 /* Exception handlers don't return anything */
 typedef void (*handler_t) (void);
 
@@ -243,9 +245,12 @@ extern tss_t tss;
  * register.
  */
 void select_page_directory(void);
+
 /* Print some debug info */
 void print_status(int time);
+
 /* Reset timer 0 to the frequency specified by PREEMPT_TICKS */
 void reset_timer(void);
+
 
 #endif /* !KERNEL_H */
