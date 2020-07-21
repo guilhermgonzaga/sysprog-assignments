@@ -35,24 +35,25 @@ static uint32_t *kernel_pdir;
 // allocate the kernel page tables
 static uint32_t *kernel_ptabs[N_KERNEL_PTS];
 
-//other global variables...
+
+// XXX static void setup_kernel_tables(void);
 
 /* Main API */
 
 
-/* Uses virtual address to get index in page directory. */
+/* Use virtual address to get index in page directory. */
 uint32_t get_dir_idx(uint32_t vaddr) {
   return (vaddr & PAGE_DIRECTORY_MASK) >> PAGE_DIRECTORY_BITS;
 }
 
 
-/* Uses virtual address to get index in a page table. */
+/* Use virtual address to get index in a page table. */
 uint32_t get_tab_idx(uint32_t vaddr) {
   return (vaddr & PAGE_TABLE_MASK) >> PAGE_TABLE_BITS;
 }
 
 
-/* Returns physical address of page number i. */
+/* Return physical address of page number i. */
 uint32_t *page_addr(int i) {
   uint32_t *addr = NULL;
 
@@ -136,41 +137,72 @@ int page_alloc(int pinned) {
 }
 
 
-/* Sets up kernel memory for kernel threads to run.
+/* Set up kernel memory for kernel threads to run.
  *
  * This method is only called once by _start() in kernel.c, and is only
  * supposed to set up the page directory and page tables for the kernel.
  */
 void init_memory(void) {
-  const uint32_t ptab_mode = /*... |*/ PE_RW;
+  const uint32_t entry_mode = /*... |*/ PE_RW;
 
   kernel_pdir = (uint32_t *) get_dir_idx(MEM_START);
 
   /* Set up kernel page directory */
   for (int i = 0; i < N_KERNEL_PTS; i++) {
     uint32_t ptab_address = MEM_START + i * PAGE_N_ENTRIES;
-    insert_ptab_dir(kernel_pdir, kernel_ptabs[i], ptab_address, ptab_mode);
 
     /* Set up kernel page tables */
     for (int j = 0; j < PAGE_N_ENTRIES; j++) {
       uint32_t page_address = ptab_address + j * PAGE_SIZE;
-      init_ptab_entry(kernel_ptabs[i], page_address, page_address, ptab_mode);
+      init_ptab_entry(kernel_ptabs[i], page_address, page_address, entry_mode);
     }
+
+    insert_ptab_dir(kernel_pdir, kernel_ptabs[i], ptab_address, entry_mode);
   }
 
   /* Give userland permission to access screen memory */
-  ASSERT(get_dir_idx(SCREEN_ADDR) < N_KERNEL_PTS);
+  ASSERT(get_dir_idx(SCREEN_ADDR) < ((N_KERNEL_PTS - 1) / PAGE_N_ENTRIES));
   int screen_tab = get_tab_idx(SCREEN_ADDR);
   init_ptab_entry(kernel_ptabs[screen_tab], SCREEN_ADDR, SCREEN_ADDR,
-                  ptab_mode | PE_US);
+                  entry_mode | PE_US);
 }
 
 
-/* TODO: Set up a page directory and page table for a new
+/* Set up a page directory and page table for a new
  * user process or thread.
  */
 void setup_page_table(pcb_t *p) {
+  const uint32_t entry_mode = /*... |*/ PE_US;
 
+  // TODO: if (p->is_thread) {} else {}  (kernel_stack, base_kernel_stack)
+
+
+  /* Map code and data segments together */
+
+  /* Set up process page directory */
+  for (int i = 0; i < 1/*BUG*/; i++) {
+    uint32_t ptab_address = p->start_pc + i * PAGE_N_ENTRIES;
+
+    /* Set up process page tables */
+    for (int j = 0; j < PAGE_N_ENTRIES; j++) {
+      uint32_t page_address = ptab_address + j * PAGE_SIZE;
+      init_ptab_entry(p->page_directory[i], page_address, 0, entry_mode);
+    }
+
+    insert_ptab_dir(p->page_directory, p->page_directory[i], ptab_address, entry_mode);
+  }
+
+  /* Set up stack pages */
+  for (int i = 0; i < N_PROCESS_STACK_PAGES; i++) {
+    uint32_t page_address = p->user_stack + i * PAGE_SIZE;
+    init_ptab_entry(p->page_directory[i], page_address, 0, entry_mode | PE_RW);
+  }
+
+  // XXX: map kernel and video memory?
+  /* Give userland permission to access screen memory */
+  int screen_tab = get_tab_idx(SCREEN_ADDR);
+  init_ptab_entry(kernel_ptabs[screen_tab], SCREEN_ADDR, SCREEN_ADDR,
+                  entry_mode | PE_RW);
 }
 
 

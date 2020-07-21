@@ -101,16 +101,15 @@ struct pcb {
    * enter_critical and leave_critical in entry.S
    */
   uint32_t disable_count;
-  /* Number of times process has been preempted */
-  uint32_t preempt_count;
-  uint32_t nested_count; /* Number of nested interrupts */
-  uint32_t start_pc;     /* Start address of a process or thread */
-  uint32_t ds;           /* Data segment selector */
-  uint32_t cs;           /* Code segment selector */
-  uint32_t fault_addr;   /* Location that generated a page fault */
-  uint32_t error_code;   /* Error code associated with a page fault */
-  uint32_t swap_loc;     /* Swap space base address */
-  uint32_t swap_size;    /* Size of this process in sectors */
+  uint32_t preempt_count; /* Number of times process has been preempted */
+  uint32_t nested_count;  /* Number of nested interrupts */
+  uint32_t start_pc;      /* Start address of a process or thread */
+  uint32_t ds;            /* Data segment selector */
+  uint32_t cs;            /* Code segment selector */
+  uint32_t fault_addr;    /* Location that generated a page fault */
+  uint32_t error_code;    /* Error code associated with a page fault */
+  uint32_t swap_loc;      /* Swap space base address */
+  uint32_t swap_size;     /* Size of this process in sectors */
   /* True before this process has had a chance to run */
   uint32_t first_time;
   uint32_t priority;         /* This process' priority */
@@ -119,13 +118,9 @@ struct pcb {
   uint32_t yield_count;      /* Number of yields made by this process */
   /* Interrupt controller mask (bit x = 0, enable irq x). */
   uint32_t int_controller_mask;
-  /*
-   * Time at which this process should transition from SLEEPING
-   * to RUNNING.
-   */
+  /* Time at which this process should transition from SLEEPING to RUNNING. */
   uint64_t wakeup_time;
-  /* Used when job is in some waiting queue */
-  struct pcb *next_blocked;
+  struct pcb *next_blocked; /* Used when job is in some waiting queue */
   uint32_t *page_directory; /* Virtual memory page directory */
   struct pcb *next;         /* Used when job is in the ready queue */
   struct pcb *previous;     /* Used when job is in the ready queue */

@@ -48,12 +48,12 @@ enum {
 };
 
 
-// TODO: Structure of an entry in the page map
+/* Structure of an entry in the page map */
 typedef struct {
   uint32_t swap_loc;
   uint32_t vaddr;  /* virtual address */
   bool_t pinned;
-  // bool_t shared;  // XXX
+  // bool_t global;  // XXX: keep this?
 
   /* page directory/table entry bits */
   /* total size must be 32 bits */
@@ -98,7 +98,7 @@ void init_memory(void);
 /* Set up a page directory and page table for the given process. Fill in
  * any necessary information in the pcb.
  */
-void setup_page_table(pcb_t * p);
+void setup_page_table(pcb_t *p);
 
 /* Swap into a free page upon a page fault.
  * This method is called from interrupt.c: exception_14().
