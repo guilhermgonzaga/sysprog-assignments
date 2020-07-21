@@ -53,6 +53,7 @@ typedef struct {
   uint32_t swap_loc;
   uint32_t vaddr;  /* virtual address */
   bool_t pinned;
+  // bool_t shared;  // XXX
 
   /* page directory/table entry bits */
   /* total size must be 32 bits */

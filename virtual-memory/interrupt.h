@@ -75,22 +75,21 @@ void unmask_hw_int(int irq);
 void bogus_interrupt(void);
 
 /* Exception handlers, see PMSA Chapter 12 */
-void exception_0(void);    /* Divide by zero               */
-void exception_1(void);    /* Debug                        */
-void exception_2(void);    /* NMI                          */
-void exception_3(void);    /* Breakpoint                   */
-void exception_4(void);    /* INTO instruction             */
-void exception_5(void);    /* BOUNDS instruction           */
-void exception_6(void);    /* Invalid opcode               */
-void exception_7(void);    /* Device not available         */
-void exception_8(void);    /* Double-fault encountered     */
-void exception_9(void);    /* Coprocessor segment overrun  */
-void exception_10(void);  /* Invalid TSS Fault            */
-void exception_11(void);  /* Segment not present          */
-void exception_12(void);  /* Stack exception              */
-void exception_13(void);  /* General Protection           */
-/* Page fault */
-void exception_14(unsigned long cr2, unsigned long err);
+void exception_0(void);   /* Divide by zero */
+void exception_1(void);   /* Debug */
+void exception_2(void);   /* NMI */
+void exception_3(void);   /* Breakpoint */
+void exception_4(void);   /* INTO instruction */
+void exception_5(void);   /* BOUNDS instruction */
+void exception_6(void);   /* Invalid opcode */
+void exception_7(void);   /* Device not available */
+void exception_8(void);   /* Double-fault encountered */
+void exception_9(void);   /* Coprocessor segment overrun */
+void exception_10(void);  /* Invalid TSS Fault */
+void exception_11(void);  /* Segment not present */
+void exception_12(void);  /* Stack exception */
+void exception_13(void);  /* General Protection */
+void exception_14(unsigned long cr2, unsigned long err);  /* Page fault */
 
 /* The following prototypes are for functions located in entry.S */
 

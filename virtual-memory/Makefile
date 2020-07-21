@@ -3,8 +3,8 @@
 CC = gcc
 LD = ld
 
-KERNEL_LOCATION    = 0x8000 # physical & virtual address of kernel
-PROCESS_LOCATION   = 0x1000000 # virtual address of processes
+KERNEL_LOCATION  = 0x8000 # physical & virtual address of the kernel
+PROCESS_LOCATION = 0x1000000 # virtual address of processes
 
 # Compiler flags
 CCOPTS = -Wall -g -c -m32 -fno-builtin -fno-stack-protector \
