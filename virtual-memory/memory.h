@@ -107,10 +107,10 @@ void setup_page_table(pcb_t *p);
 void page_fault_handler(void);
 
 /* Swap the i-th page in from disk (i.e. the image file) */
-void page_swap_in(int pageno);
+void page_swap_in(int i);
 
 /* Swap the i-th page out */
-void page_swap_out(int pageno);
+void page_swap_out(int i);
 
 /* Decide which page to replace, return the page number  */
 int page_replacement_policy(void);

@@ -32,11 +32,15 @@ static page_map_entry_t page_map[PAGEABLE_PAGES];
 // address of the kernel page directory (shared by all kernel threads)
 static uint32_t *kernel_pdir;
 
-// allocate the kernel page tables
+/* The kernel page tables. */
 static uint32_t *kernel_ptabs[N_KERNEL_PTS];
 
+/* Normal mode for kernel pages to be allocated in. */
+static const uint32_t kernel_mode = PE_RW;  // XXX RW?
 
-// XXX static void setup_kernel_tables(void);
+/* Set up n_pages page tables to mode starting at vaddr. */
+static void setup_ptabs(uint32_t *pdir, uint32_t vaddr, int n_ptabs,
+                        uint32_t mode);
 
 /* Main API */
 
@@ -143,28 +147,14 @@ int page_alloc(int pinned) {
  * supposed to set up the page directory and page tables for the kernel.
  */
 void init_memory(void) {
-  const uint32_t entry_mode = /*... |*/ PE_RW;
-
-  kernel_pdir = (uint32_t *) get_dir_idx(MEM_START);
-
   /* Set up kernel page directory */
-  for (int i = 0; i < N_KERNEL_PTS; i++) {
-    uint32_t ptab_address = MEM_START + i * PAGE_N_ENTRIES;
+  kernel_pdir = (uint32_t *) &kernel_ptabs[0];
 
-    /* Set up kernel page tables */
-    for (int j = 0; j < PAGE_N_ENTRIES; j++) {
-      uint32_t page_address = ptab_address + j * PAGE_SIZE;
-      init_ptab_entry(kernel_ptabs[i], page_address, page_address, entry_mode);
-    }
-
-    insert_ptab_dir(kernel_pdir, kernel_ptabs[i], ptab_address, entry_mode);
-  }
+  /* Map kernel page tables */
+  setup_ptabs(kernel_pdir, MEM_START, N_KERNEL_PTS, kernel_mode);
 
   /* Give userland permission to access screen memory */
-  ASSERT(get_dir_idx(SCREEN_ADDR) < ((N_KERNEL_PTS - 1) / PAGE_N_ENTRIES));
-  int screen_tab = get_tab_idx(SCREEN_ADDR);
-  init_ptab_entry(kernel_ptabs[screen_tab], SCREEN_ADDR, SCREEN_ADDR,
-                  entry_mode | PE_US);
+  set_ptab_entry_flags(kernel_pdir, SCREEN_ADDR, kernel_mode | PE_US);
 }
 
 
@@ -172,37 +162,28 @@ void init_memory(void) {
  * user process or thread.
  */
 void setup_page_table(pcb_t *p) {
-  const uint32_t entry_mode = /*... |*/ PE_US;
+  uint32_t code_mode  = PE_US;
+  uint32_t stack_mode = PE_US | PE_RW;
 
-  // TODO: if (p->is_thread) {} else {}  (kernel_stack, base_kernel_stack)
+  if (p->is_thread) {
+    p->page_directory = kernel_pdir;
+    // TODO: setup p->kernel_stack and p->base_kernel_stack;
+  }
+  else {
+    /* Map code and data segments together */
+    setup_ptabs(p->page_directory, p->start_pc, 1/*BUG*/, code_mode);
 
+    /* Map kernel page tables */
+    setup_ptabs(p->page_directory, MEM_START, N_KERNEL_PTS, kernel_mode);
 
-  /* Map code and data segments together */
+    /* Give userland permission to access screen memory */
+    set_ptab_entry_flags(p->page_directory, SCREEN_ADDR, kernel_mode | PE_US);
 
-  /* Set up process page directory */
-  for (int i = 0; i < 1/*BUG*/; i++) {
-    uint32_t ptab_address = p->start_pc + i * PAGE_N_ENTRIES;
-
-    /* Set up process page tables */
-    for (int j = 0; j < PAGE_N_ENTRIES; j++) {
-      uint32_t page_address = ptab_address + j * PAGE_SIZE;
-      init_ptab_entry(p->page_directory[i], page_address, 0, entry_mode);
+    /* Set up stack pages */
+    for (int i = 0; i < N_PROCESS_STACK_PAGES; i++) {
+      set_ptab_entry_flags(p->page_directory, p->user_stack, stack_mode);
     }
-
-    insert_ptab_dir(p->page_directory, p->page_directory[i], ptab_address, entry_mode);
   }
-
-  /* Set up stack pages */
-  for (int i = 0; i < N_PROCESS_STACK_PAGES; i++) {
-    uint32_t page_address = p->user_stack + i * PAGE_SIZE;
-    init_ptab_entry(p->page_directory[i], page_address, 0, entry_mode | PE_RW);
-  }
-
-  // XXX: map kernel and video memory?
-  /* Give userland permission to access screen memory */
-  int screen_tab = get_tab_idx(SCREEN_ADDR);
-  init_ptab_entry(kernel_ptabs[screen_tab], SCREEN_ADDR, SCREEN_ADDR,
-                  entry_mode | PE_RW);
 }
 
 
@@ -259,4 +240,23 @@ int page_replacement_policy(void) {
   }
 
   return min_idx;
+}
+
+
+static void setup_ptabs(uint32_t *pdir, uint32_t vaddr, int n_ptabs,
+                        uint32_t mode) {
+  uint32_t paddr = (mode & PE_US) ? 0: vaddr;
+
+  /* Set up page directory */
+  for (int i = 0; i < n_ptabs; i++) {
+    uint32_t ptab_address = vaddr + (i << PAGE_DIRECTORY_BITS);
+
+    /* Set up page tables */
+    for (int j = 0; j < PAGE_N_ENTRIES; j++) {
+      uint32_t page_address = ptab_address + (j << PAGE_TABLE_BITS);
+      init_ptab_entry(pdir[i], page_address, paddr, mode);
+    }
+
+    insert_ptab_dir(pdir, pdir[i], ptab_address, mode);
+  }
 }

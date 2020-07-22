@@ -87,13 +87,13 @@ struct pcb {
   uint32_t is_thread;  /* Thread or process */
   uint32_t user_stack; /* Pointer to base of the user stack */
   /*
-   * Used to set up kernel stack, and temporary save esp in
+   * Used to set up kernel stack, and temporarily save esp in
    * scheduler()/dispatch()
    */
   uint32_t kernel_stack;
   /*
    * Pointer to base of the kernel stack (used to restore an
-   * empty ker. st.)
+   * empty kernel stack)
    */
   uint32_t base_kernel_stack;
   /*
