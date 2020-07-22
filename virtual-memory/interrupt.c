@@ -160,14 +160,14 @@ void fake_irq7(void)
  */
 void exception_14(unsigned long cr2, unsigned long err)
 {
-        /*
+  /*
    * Used for debugging. Can also be extended to include
    * privilege checks.
    */
   current_running->error_code = err;
   /*
    * The address that caused the page fault is stored in
-   * cr->fault_addr
+   * current_running->fault_addr
    */
   current_running->fault_addr = cr2;
   current_running->nested_count++;

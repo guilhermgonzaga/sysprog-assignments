@@ -1,4 +1,4 @@
-/* Author(s): Felipe Hiroshi Baron and Guilherme Gonzaga de Andrade
+/* Author(s): Felipe Hiroshi Baron and Guilherme Gonzaga de Andrade.
  * Defines the memory manager for the kernel.
  */
 
@@ -53,7 +53,6 @@ typedef struct {
   uint32_t swap_loc;
   uint32_t vaddr;  /* virtual address */
   bool_t pinned;
-  // bool_t global;  // XXX: keep this?
 
   /* page directory/table entry bits */
   /* total size must be 32 bits */

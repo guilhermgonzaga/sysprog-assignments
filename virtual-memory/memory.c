@@ -1,4 +1,4 @@
-/* Author(s): Felipe Hiroshi Baron and Guilherme Gonzaga de Andrade
+/* Author(s): Felipe Hiroshi Baron and Guilherme Gonzaga de Andrade.
  * Implementation of the memory manager for the kernel.
  */
 
@@ -57,7 +57,8 @@ uint32_t get_tab_idx(uint32_t vaddr) {
 }
 
 
-/* Return physical address of page number i. */
+/* Return physical address of page number i.
+ */
 uint32_t *page_addr(int i) {
   uint32_t *addr = NULL;
 
@@ -79,10 +80,10 @@ void set_ptab_entry_flags(uint32_t *pdir, uint32_t vaddr, uint32_t mode) {
 
   ASSERT(dir_entry & PE_P); /* dir entry present */
   tab = (uint32_t *) (dir_entry & PE_BASE_ADDR_MASK);
-  /* clear table[index] bits 11..0 */
+  /* Clear table[index] bits 11..0 */
   entry = tab[tab_idx] & PE_BASE_ADDR_MASK;
 
-  /* set table[index] bits 11..0 */
+  /* Set table[index] bits 11..0 */
   entry |= mode & ~PE_BASE_ADDR_MASK;
   tab[tab_idx] = entry;
 
@@ -121,7 +122,7 @@ void insert_ptab_dir(uint32_t *dir, uint32_t *tab, uint32_t vaddr,
 }
 
 
-/* TODO: Allocate a page. Return page index in the page_map directory.
+/* Allocate a page. Return page index in the page_map directory.
  *
  * Marks page as pinned if pinned == TRUE.
  * Swap out a page if no space is available.
@@ -129,13 +130,23 @@ void insert_ptab_dir(uint32_t *dir, uint32_t *tab, uint32_t vaddr,
 int page_alloc(int pinned) {
   int page_idx = page_replacement_policy();
 
-  if (page_map[page_idx].p) {
-    page_swap_out(page_map[page_idx].baddr);
+  if (page_idx != -1) {
+    page_map_entry_t *entry = &page_map[page_idx];
+
+    if (entry->p) {
+      if (entry->d || entry->pwt) {
+        page_swap_out(page_idx);
+
+        /* Flush TLB because we just changed a page table entry in memory */
+        flush_tlb_entry(entry->vaddr);
+      }
+
+      /* Zero-out the page */
+      bzero((char *) page_addr(page_idx), PAGE_SIZE);
+    }
+
+    entry->pinned = pinned;
   }
-
-  page_map[page_idx].pinned = pinned;
-
-  // TODO: zero-out the page?
 
   return page_idx;
 }
@@ -171,7 +182,7 @@ void setup_page_table(pcb_t *p) {
   }
   else {
     /* Map code and data segments together */
-    setup_ptabs(p->page_directory, p->start_pc, 1/*BUG*/, code_mode);
+    setup_ptabs(p->page_directory, p->start_pc, 1/*XXX*/, code_mode);
 
     /* Map kernel page tables */
     setup_ptabs(p->page_directory, MEM_START, N_KERNEL_PTS, kernel_mode);
@@ -187,55 +198,94 @@ void setup_page_table(pcb_t *p) {
 }
 
 
-/* TODO: Swap into a free page upon a page fault.
+/* Swap into a free page upon a page fault.
+ *
  * This method is called from interrupt.c: exception_14().
  * Should handle demand paging.
  */
 void page_fault_handler(void) {
+  static lock_t lock;
+  static _Bool lock_initialized = 0;
 
+  pcb_t *task = current_running;
+  int dir_idx = get_dir_idx(task->fault_addr);
+  int tab_idx = get_tab_idx(task->fault_addr);
+  uint32_t *ptab = (uint32_t *) task->page_directory[dir_idx];
+  uint32_t paddr = ptab[tab_idx];
+  int page_idx;
+
+  if (!lock_initialized) {
+    lock_initialized = 1;
+    lock_init(&lock);
+  }
+
+  lock_acquire(&lock);
+
+  page_alloc(page_idx);
+  page_swap_in(page_idx);
+
+  lock_release(&lock);
 }
 
 
 /* Get the sector number on disk of a process image.
- * Used for page swapping. */
+ * Used for page swapping.
+ */
 int get_disk_sector(page_map_entry_t *page) {
   return page->swap_loc +
     ((page->vaddr - PROCESS_START) / PAGE_SIZE) * SECTORS_PER_PAGE;
 }
 
 
-// TODO: Swap i-th page in from disk (i.e. the image file)
+/* Swap i-th page in from disk (i.e. the image file)
+ */
 void page_swap_in(int i) {
+  void *data = page_addr(i);
 
+  scsi_read(page_map[i].swap_loc, SECTORS_PER_PAGE, data);
 }
 
 
-/* TODO: Swap i-th page out to disk.
+/* Swap i-th page out to disk.
  *
  * Write the page back to the process image.
  * There is no separate swap space on the USB.
  */
 void page_swap_out(int i) {
+  void *data = page_addr(i);
 
+  scsi_write(page_map[i].swap_loc, SECTORS_PER_PAGE, data);
 }
 
 
-/* Decide which page to replace, return the page number. */
+/* Decide which page to replace, return the page number.
+ *
+ * Return -1 if no pages can be replaced (i.e. all pinned).
+ */
 int page_replacement_policy(void) {
-  int min_idx = 0;
+  int min_idx = -1;
+  uint32_t ad_bits_min = 4;
 
   for (int i = 0; i < PAGEABLE_PAGES; i++) {
-    if (!page_map[i].pinned) {
-      if (!page_map[i].p) {  /* Available slots have highest priority */
+    page_map_entry_t *entry = &page_map[i];
+
+    if (!entry->pinned) {
+      if (!entry->p) {  /* Available slots have highest priority */
         return i;
       }
 
-      uint32_t ad_bits_min = (page_map[min_idx].a << 1) | page_map[min_idx].d;
-      uint32_t ad_bits = (page_map[i].a << 1) | page_map[i].d;
+      /* Accessed and dirty bits make up the page's fitness;
+       * a lower score is preferable to replacement.
+       * Write-through pages are considered always dirty.
+       */
+      uint32_t ad_bits = (entry->a << 1) | (entry->pwt || entry->d);
 
       if (ad_bits < ad_bits_min) {
+        ad_bits_min = ad_bits;
         min_idx = i;
       }
+
+      // TODO: reset accessed bits of all pages indexed
     }
   }
 
