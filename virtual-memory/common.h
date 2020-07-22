@@ -90,8 +90,8 @@ typedef enum {
  *   sizeof(char))
  */
 struct msg {
-  int size;    /* Size of message contents in bytes */
-  char body[0];    /* Pointer to start of message contents */
+  int size;     /* Size of message contents in bytes */
+  char body[0]; /* Pointer to start of message contents */
 }__attribute__ ((packed));
 
 typedef struct msg msg_t;

@@ -65,8 +65,8 @@ struct command_descriptor_block10 {
 
 /* Operation codes */
 #define CDB_READ_CAPACITY10 0x25
-#define CDB_READ6          0x08
-#define CDB_WRITE6         0x0A
+#define CDB_READ6           0x08
+#define CDB_WRITE6          0x0A
 
 #define SCSI_READ 0
 #define SCSI_WRITE 1
