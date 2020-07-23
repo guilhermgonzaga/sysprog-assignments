@@ -35,8 +35,11 @@ static uint32_t *kernel_pdir;
 /* The kernel page tables. */
 static uint32_t *kernel_ptabs[N_KERNEL_PTS];
 
-/* Normal mode for kernel pages to be allocated in. */
-static const uint32_t kernel_mode = PE_RW;  // XXX RW?
+/* Flags for each type of page to be allocated with. */
+static const uint32_t kernel_flags = 0;
+static const uint32_t code_flags   = PE_US;
+static const uint32_t screen_flags = PE_US | PE_RW;
+static const uint32_t stack_flags  = PE_US | PE_RW;
 
 /* Set up n_pages page tables to mode starting at vaddr. */
 static void setup_ptabs(uint32_t *pdir, uint32_t vaddr, int n_ptabs,
@@ -62,7 +65,7 @@ uint32_t get_tab_idx(uint32_t vaddr) {
 uint32_t *page_addr(int i) {
   uint32_t *addr = NULL;
 
-  if (0 <= i && i < PAGEABLE_PAGES) {
+  if (0 <= i && i < PAGEABLE_PAGES && page_map[i].p) {
     addr = (uint32_t *) (page_map[i].baddr << PE_BASE_ADDR_BITS);
   }
 
@@ -142,7 +145,9 @@ int page_alloc(int pinned) {
       }
 
       /* Zero-out the page */
-      bzero((char *) page_addr(page_idx), PAGE_SIZE);
+      void *data = page_addr(page_idx);
+      ASSERT(data != NULL);
+      bzero(data, PAGE_SIZE);
     }
 
     entry->pinned = pinned;
@@ -162,10 +167,10 @@ void init_memory(void) {
   kernel_pdir = (uint32_t *) &kernel_ptabs[0];
 
   /* Map kernel page tables */
-  setup_ptabs(kernel_pdir, MEM_START, N_KERNEL_PTS, kernel_mode);
+  setup_ptabs(kernel_pdir, MEM_START, N_KERNEL_PTS, kernel_flags);
 
   /* Give userland permission to access screen memory */
-  set_ptab_entry_flags(kernel_pdir, SCREEN_ADDR, kernel_mode | PE_US);
+  set_ptab_entry_flags(kernel_pdir, SCREEN_ADDR, screen_flags);
 }
 
 
@@ -173,26 +178,22 @@ void init_memory(void) {
  * user process or thread.
  */
 void setup_page_table(pcb_t *p) {
-  uint32_t code_mode  = PE_US;
-  uint32_t stack_mode = PE_US | PE_RW;
-
   if (p->is_thread) {
     p->page_directory = kernel_pdir;
-    // TODO: setup p->kernel_stack and p->base_kernel_stack;
   }
   else {
     /* Map code and data segments together */
-    setup_ptabs(p->page_directory, p->start_pc, 1/*XXX*/, code_mode);
+    setup_ptabs(p->page_directory, p->start_pc, 1/*XXX*/, code_flags);
 
     /* Map kernel page tables */
-    setup_ptabs(p->page_directory, MEM_START, N_KERNEL_PTS, kernel_mode);
+    setup_ptabs(p->page_directory, MEM_START, N_KERNEL_PTS, kernel_flags);
 
     /* Give userland permission to access screen memory */
-    set_ptab_entry_flags(p->page_directory, SCREEN_ADDR, kernel_mode | PE_US);
+    set_ptab_entry_flags(p->page_directory, SCREEN_ADDR, screen_flags);
 
     /* Set up stack pages */
     for (int i = 0; i < N_PROCESS_STACK_PAGES; i++) {
-      set_ptab_entry_flags(p->page_directory, p->user_stack, stack_mode);
+      set_ptab_entry_flags(p->page_directory, p->user_stack, stack_flags);
     }
   }
 }
@@ -229,6 +230,7 @@ void page_fault_handler(void) {
   page_map[page_idx].swap_loc = current_running->swap_loc;
   page_map[page_idx].vaddr = current_running->fault_addr;
   page_map[page_idx].entry = ptab_entry;
+  page_map[page_idx].p = 1;
 
   page_swap_in(page_idx);
 
@@ -249,6 +251,7 @@ int get_disk_sector(page_map_entry_t *page) {
  */
 void page_swap_in(int i) {
   void *data = page_addr(i);
+  ASSERT(data != NULL);
 
   /*int rc = */scsi_read(get_disk_sector(&page_map[i]), SECTORS_PER_PAGE, data);
   // ASSERT(rc == 0);
@@ -262,6 +265,7 @@ void page_swap_in(int i) {
  */
 void page_swap_out(int i) {
   void *data = page_addr(i);
+  ASSERT(data != NULL);
 
   /*int rc = */scsi_write(get_disk_sector(&page_map[i]), SECTORS_PER_PAGE, data);
   // ASSERT(rc == 0);

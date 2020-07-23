@@ -665,7 +665,7 @@ void free_pcb(pcb_t * p)
  */
 void print_status(int time)
 {
-  static char *status[] =
+  static const char *status[] =
     { "Running ", "Blocked ", "Sleeping", "Exited  " };
   int i, j, base;
   pcb_t *p;
