@@ -150,7 +150,7 @@ int page_alloc(int pinned) {
       bzero(data, PAGE_SIZE);
     }
 
-    entry->pinned = pinned;
+    entry->pinned = pinned == TRUE; /* Convert to 0/1 before assignment */
   }
 
   return page_idx;
@@ -164,7 +164,7 @@ int page_alloc(int pinned) {
  */
 void init_memory(void) {
   /* Set up kernel page directory */
-  kernel_pdir = (uint32_t *) &kernel_ptabs[0];
+  kernel_pdir = (uint32_t *) /*((*/&kernel_ptabs[0] /* & PE_BASE_ADDR_MASK) | code_flags | PE_PIN) */;
 
   /* Map kernel page tables */
   setup_ptabs(kernel_pdir, MEM_START, N_KERNEL_PTS, kernel_flags);
@@ -182,8 +182,10 @@ void setup_page_table(pcb_t *p) {
     p->page_directory = kernel_pdir;
   }
   else {
+    p->page_directory = (uint32_t *) ((PROCESS_START & PE_BASE_ADDR_MASK) | code_flags | PE_PIN);
+
     /* Map code and data segments together */
-    setup_ptabs(p->page_directory, p->start_pc, 1/*XXX*/, code_flags);
+    setup_ptabs(p->page_directory, PROCESS_START, 1/*XXX*/, code_flags);
 
     /* Map kernel page tables */
     setup_ptabs(p->page_directory, MEM_START, N_KERNEL_PTS, kernel_flags);
@@ -224,7 +226,7 @@ void page_fault_handler(void) {
 
   /* Allocate a physical page and swap-in the missing page */
 
-  int page_idx = page_alloc(FALSE);  // XXX: which value to pass in?
+  int page_idx = page_alloc((ptab_entry & PE_PIN) ? TRUE : FALSE);
   ASSERT(page_idx != -1);
 
   page_map[page_idx].swap_loc = current_running->swap_loc;
@@ -299,7 +301,7 @@ int page_replacement_policy(void) {
         min_idx = i;
       }
 
-      // TODO: reset accessed bits of all pages indexed
+      // XXX: reset accessed bits of all pages indexed in this search?
     }
   }
 
@@ -318,9 +320,9 @@ static void setup_ptabs(uint32_t *pdir, uint32_t vaddr, int n_ptabs,
     /* Set up page tables */
     for (int j = 0; j < PAGE_N_ENTRIES; j++) {
       uint32_t page_address = ptab_address + (j << PAGE_TABLE_BITS);
-      init_ptab_entry(pdir[i], page_address, paddr, mode);
+      init_ptab_entry((uint32_t *) pdir[i], page_address, paddr, mode);
     }
 
-    insert_ptab_dir(pdir, pdir[i], ptab_address, mode);
+    insert_ptab_dir(pdir, (uint32_t *) pdir[i], ptab_address, mode);
   }
 }

@@ -17,15 +17,16 @@ enum {
   PTABLE_SPAN = (PAGE_SIZE * PAGE_N_ENTRIES),
 
   /* page directory/table entry bits (PMSA p.235 and p.240) */
-  PE_P = 1 << 0,   /* present */
-  PE_RW = 1 << 1,  /* read/write */
-  PE_US = 1 << 2,  /* user/supervisor */
-  PE_PWT = 1 << 3, /* page write-through */
-  PE_PCD = 1 << 4, /* page cache disable */
-  PE_A = 1 << 5,   /* accessed */
-  PE_D = 1 << 6,   /* dirty */
-  PE_BASE_ADDR_BITS = 12,  /* position of base address */
-  PE_BASE_ADDR_MASK = 0xfffff000,  /* extracts the base address */
+  PE_P = 1 << 0,    /* Present */
+  PE_RW = 1 << 1,   /* Read/write */
+  PE_US = 1 << 2,   /* User/supervisor */
+  PE_PWT = 1 << 3,  /* Page write-through */
+  PE_PCD = 1 << 4,  /* Page cache disable */
+  PE_A = 1 << 5,    /* Accessed */
+  PE_D = 1 << 6,    /* Dirty */
+  PE_PIN = 1 << 9,  /* Pinned in memory (non-standard) */
+  PE_BASE_ADDR_BITS = 12,  /* Position of base address */
+  PE_BASE_ADDR_MASK = 0xfffff000,  /* Extracts the base address */
 
   /* Constants to simulate a very small physical memory. */
   MEM_START = 0x100000, /* 1MB */
@@ -52,22 +53,23 @@ enum {
 typedef struct {
   uint32_t swap_loc; /* Swap space base address */
   uint32_t vaddr;    /* Virtual address */
-  bool_t pinned;
 
   /* Page directory/table entry bits */
   /* Total size must be 32 bits */
   union {
     uint32_t entry;
     struct {
-      uint32_t p: 1;    /* Present */
-      uint32_t rw: 1;   /* Read/write */
-      uint32_t us: 1;   /* User/supervisor */
-      uint32_t pwt: 1;  /* Page write-through */
-      uint32_t pcd: 1;  /* Page cache disable */
-      uint32_t a: 1;    /* Accessed */
-      uint32_t d: 1;    /* Dirty */
-      uint32_t : PE_BASE_ADDR_BITS - 7;       /* Padding */
-      uint32_t baddr: 32 - PE_BASE_ADDR_BITS; /* Page base address */
+      uint32_t p: 1;      /* Present */
+      uint32_t rw: 1;     /* Read/write */
+      uint32_t us: 1;     /* User/supervisor */
+      uint32_t pwt: 1;    /* Page write-through */
+      uint32_t pcd: 1;    /* Page cache disable */
+      uint32_t a: 1;      /* Accessed */
+      uint32_t d: 1;      /* Dirty */
+      uint32_t : 2;       /* Padding */
+      uint32_t pinned: 1; /* Page pinned in memory (non-standard) */
+      uint32_t : 2;       /* Padding */
+      uint32_t baddr: 20; /* Page base address */
     };
   };
 } page_map_entry_t;
