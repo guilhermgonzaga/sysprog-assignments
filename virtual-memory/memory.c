@@ -207,13 +207,6 @@ void page_fault_handler(void) {
   static lock_t lock;
   static _Bool lock_initialized = 0;
 
-  pcb_t *task = current_running;
-  int dir_idx = get_dir_idx(task->fault_addr);
-  int tab_idx = get_tab_idx(task->fault_addr);
-  uint32_t *ptab = (uint32_t *) task->page_directory[dir_idx];
-  uint32_t paddr = ptab[tab_idx];
-  int page_idx;
-
   if (!lock_initialized) {
     lock_initialized = 1;
     lock_init(&lock);
@@ -221,7 +214,22 @@ void page_fault_handler(void) {
 
   lock_acquire(&lock);
 
-  page_alloc(page_idx);
+  /* Find address through page directory and page table */
+
+  int dir_idx = get_dir_idx(current_running->fault_addr);
+  int tab_idx = get_tab_idx(current_running->fault_addr);
+  uint32_t *ptab = (uint32_t *) current_running->page_directory[dir_idx];
+  uint32_t ptab_entry = ptab[tab_idx];
+
+  /* Allocate a physical page and swap-in the missing page */
+
+  int page_idx = page_alloc(FALSE);  // XXX: which value to pass in?
+  ASSERT(page_idx != -1);
+
+  page_map[page_idx].swap_loc = current_running->swap_loc;
+  page_map[page_idx].vaddr = current_running->fault_addr;
+  page_map[page_idx].entry = ptab_entry;
+
   page_swap_in(page_idx);
 
   lock_release(&lock);
@@ -242,7 +250,8 @@ int get_disk_sector(page_map_entry_t *page) {
 void page_swap_in(int i) {
   void *data = page_addr(i);
 
-  scsi_read(page_map[i].swap_loc, SECTORS_PER_PAGE, data);
+  /*int rc = */scsi_read(get_disk_sector(&page_map[i]), SECTORS_PER_PAGE, data);
+  // ASSERT(rc == 0);
 }
 
 
@@ -254,7 +263,8 @@ void page_swap_in(int i) {
 void page_swap_out(int i) {
   void *data = page_addr(i);
 
-  scsi_write(page_map[i].swap_loc, SECTORS_PER_PAGE, data);
+  /*int rc = */scsi_write(get_disk_sector(&page_map[i]), SECTORS_PER_PAGE, data);
+  // ASSERT(rc == 0);
 }
 
 

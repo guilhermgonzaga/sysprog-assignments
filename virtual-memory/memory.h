@@ -50,24 +50,24 @@ enum {
 
 /* Structure of an entry in the page map */
 typedef struct {
-  uint32_t swap_loc;
-  uint32_t vaddr;  /* virtual address */
+  uint32_t swap_loc; /* Swap space base address */
+  uint32_t vaddr;    /* Virtual address */
   bool_t pinned;
 
-  /* page directory/table entry bits */
-  /* total size must be 32 bits */
+  /* Page directory/table entry bits */
+  /* Total size must be 32 bits */
   union {
     uint32_t entry;
     struct {
-      uint32_t p: 1;    /* present */
-      uint32_t rw: 1;   /* read/write */
-      uint32_t us: 1;   /* user/supervisor */
-      uint32_t pwt: 1;  /* page write-through */
-      uint32_t pcd: 1;  /* page cache disable */
-      uint32_t a: 1;    /* accessed */
-      uint32_t d: 1;    /* dirty */
-      uint32_t : PE_BASE_ADDR_BITS - 7;       /* padding */
-      uint32_t baddr: 32 - PE_BASE_ADDR_BITS; /* page base address */
+      uint32_t p: 1;    /* Present */
+      uint32_t rw: 1;   /* Read/write */
+      uint32_t us: 1;   /* User/supervisor */
+      uint32_t pwt: 1;  /* Page write-through */
+      uint32_t pcd: 1;  /* Page cache disable */
+      uint32_t a: 1;    /* Accessed */
+      uint32_t d: 1;    /* Dirty */
+      uint32_t : PE_BASE_ADDR_BITS - 7;       /* Padding */
+      uint32_t baddr: 32 - PE_BASE_ADDR_BITS; /* Page base address */
     };
   };
 } page_map_entry_t;
@@ -78,14 +78,14 @@ typedef struct {
 /* Use virtual address to get index in page directory. */
 uint32_t get_dir_idx(uint32_t vaddr);
 
-/* Use virtual address to get index in a page table.  */
+/* Use virtual address to get index in a page table. */
 uint32_t get_tab_idx(uint32_t vaddr);
 
 /* Return the physical address of the i-th page */
 uint32_t* page_addr(int i);
 
 /* Allocate a page. If necessary, swap a page out.
- * On success, return the index of the page in the page map.  On
+ * On success, return the index of the page in the page map. On
  * failure, abort. BUG: pages are not made free when a process
  * exits.
  */
