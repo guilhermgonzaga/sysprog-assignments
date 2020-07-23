@@ -90,7 +90,7 @@ void set_ptab_entry_flags(uint32_t *pdir, uint32_t vaddr, uint32_t mode) {
   entry |= mode & ~PE_BASE_ADDR_MASK;
   tab[tab_idx] = entry;
 
-  /* Flush TLB because we just changed a page table entry in memory */
+  /* Flush TLB because a page table entry was changed in memory */
   flush_tlb_entry(vaddr);
 }
 
@@ -137,10 +137,11 @@ int page_alloc(int pinned) {
     page_map_entry_t *entry = &page_map[page_idx];
 
     if (entry->p) {
+      /* Swap page out if dirty or write-through enabled */
       if (entry->d || entry->pwt) {
         page_swap_out(page_idx);
 
-        /* Flush TLB because we just changed a page table entry in memory */
+        /* Flush TLB because a page table entry was changed in memory */
         flush_tlb_entry(entry->vaddr);
       }
 
@@ -195,7 +196,7 @@ void setup_page_table(pcb_t *p) {
 
     /* Set up stack pages */
     for (int i = 0; i < N_PROCESS_STACK_PAGES; i++) {
-      set_ptab_entry_flags(p->page_directory, p->user_stack, stack_flags);
+      set_ptab_entry_flags(p->page_directory, p->user_stack - i * PAGE_SIZE, stack_flags);
     }
   }
 }
@@ -311,7 +312,7 @@ int page_replacement_policy(void) {
 
 static void setup_ptabs(uint32_t *pdir, uint32_t vaddr, int n_ptabs,
                         uint32_t mode) {
-  uint32_t paddr = (mode & PE_US) ? 0: vaddr;
+  uint32_t paddr = (mode & PE_US) ? 0 : vaddr;  // XXX: what should go in place of 0?
 
   /* Set up page directory */
   for (int i = 0; i < n_ptabs; i++) {
