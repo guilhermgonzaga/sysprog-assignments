@@ -26,10 +26,10 @@
 /* Static global variables */
 
 
-// Keep track of all pages: their vaddr, status, and other properties
+/* Keep track of all pages: their vaddr, status, and other properties */
 static page_map_entry_t page_map[PAGEABLE_PAGES];
 
-// address of the kernel page directory (shared by all kernel threads)
+/* address of the kernel page directory (shared by all kernel threads) */
 static uint32_t *kernel_pdir;
 
 /* The kernel page tables. */
@@ -183,7 +183,8 @@ void setup_page_table(pcb_t *p) {
     p->page_directory = kernel_pdir;
   }
   else {
-    p->page_directory = (uint32_t *) ((PROCESS_START & PE_BASE_ADDR_MASK) | code_flags | PE_PIN);
+    p->page_directory = (uint32_t *) ((PROCESS_START & PE_BASE_ADDR_MASK) |
+                        code_flags | PE_PIN);
 
     /* Map code and data segments together */
     setup_ptabs(p->page_directory, PROCESS_START, 1/*XXX*/, code_flags);
@@ -196,7 +197,8 @@ void setup_page_table(pcb_t *p) {
 
     /* Set up stack pages */
     for (int i = 0; i < N_PROCESS_STACK_PAGES; i++) {
-      set_ptab_entry_flags(p->page_directory, p->user_stack - i * PAGE_SIZE, stack_flags);
+      set_ptab_entry_flags(p->page_directory, p->user_stack - i * PAGE_SIZE,
+                           stack_flags);
     }
   }
 }
@@ -256,8 +258,8 @@ void page_swap_in(int i) {
   void *data = page_addr(i);
   ASSERT(data != NULL);
 
-  /*int rc = */scsi_read(get_disk_sector(&page_map[i]), SECTORS_PER_PAGE, data);
-  // ASSERT(rc == 0);
+  int rc = scsi_read(get_disk_sector(&page_map[i]), SECTORS_PER_PAGE, data);
+  ASSERT(rc == 0);
 }
 
 
@@ -270,8 +272,8 @@ void page_swap_out(int i) {
   void *data = page_addr(i);
   ASSERT(data != NULL);
 
-  /*int rc = */scsi_write(get_disk_sector(&page_map[i]), SECTORS_PER_PAGE, data);
-  // ASSERT(rc == 0);
+  int rc = scsi_write(get_disk_sector(&page_map[i]), SECTORS_PER_PAGE, data);
+  ASSERT(rc == 0);
 }
 
 
@@ -295,14 +297,12 @@ int page_replacement_policy(void) {
        * a lower score is preferable to replacement.
        * Write-through pages are considered always dirty.
        */
-      uint32_t ad_bits = (entry->a << 1) | (entry->pwt || entry->d);
+      uint32_t ad_bits = (!entry->a << 1) | (entry->pwt || entry->d);
 
       if (ad_bits < ad_bits_min) {
         ad_bits_min = ad_bits;
         min_idx = i;
       }
-
-      // XXX: reset accessed bits of all pages indexed in this search?
     }
   }
 
