@@ -6,7 +6,8 @@
 *.o   binary
 *.out binary
 
-buildimage/bin/buildimage.given binary
+buildimage/bin/buildimage.given         binary
+virtual-memory/bios/VGABIOS-lgpl-latest binary
 
 # Define header files to be considered C language, rather than C++, by linguist.
 *.h linguist-language=C
