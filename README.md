@@ -1,7 +1,7 @@
-# systems-programming-assignments
+# sysprog-assignments
 
 [![GitHub Workflow][gh-build-badge]][gh-actions]
-[![Lines of Code](https://tokei.rs/b1/github/guilhermgonzaga/systems-programming-assignments?category=code)][repo-url]
+[![Lines of Code](https://tokei.rs/b1/github/guilhermgonzaga/sysprog-assignments?category=code)][repo-url]
 
 [repo-url]:       https://github.com/guilhermgonzaga/systems-programming-assignments/
 [gh-actions]:     https://github.com/guilhermgonzaga/systems-programming-assignments/actions
@@ -10,7 +10,7 @@
 
 Assignments done for a Systems Programming course at the [UFMS Faculty of Computing](https://facom.ufms.br), Brazil.
 
-The course is based on Carnegie Mellon's well-known "Introduction to Computer Systems" and therefore follows Bryant and O'Hallaron's [Computer Systems: A Programmer's Perspective](http://csapp.cs.cmu.edu/) textbook.
+The course is based on Carnegie Mellon's well-known "Introduction to Computer Systems" and therefore follows Bryant and O'Hallaron's [Computer Systems: A Programmer's Perspective](http://csapp.cs.cmu.edu) textbook.
 
 
 ## Description
