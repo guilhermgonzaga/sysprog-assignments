@@ -297,12 +297,12 @@ int strlen(char *s)
   return n;
 }
 
-/* return TRUE if string s1 and string s2 are equal */
+/* return true if string s1 and string s2 are equal */
 int same_string(char *s1, char *s2)
 {
   while ((*s1 != 0) && (*s2 != 0)) {
     if (*s1 != *s2)
-      return FALSE;
+      return false;
     s1++;
     s2++;
   }

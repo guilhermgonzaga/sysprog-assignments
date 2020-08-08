@@ -84,7 +84,7 @@ uint32_t get_dir_idx(uint32_t vaddr);
 uint32_t get_tab_idx(uint32_t vaddr);
 
 /* Return the physical address of the i-th page */
-uint32_t* page_addr(int i);
+uint32_t *page_addr(int i);
 
 /* Allocate a page. If necessary, swap a page out.
  * On success, return the index of the page in the page map. On

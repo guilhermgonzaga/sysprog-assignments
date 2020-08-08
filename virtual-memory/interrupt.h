@@ -29,7 +29,7 @@ enum {
  *
  * name: exception name
  * str: Error string
- * error_code: TRUE if exception has an error code
+ * error_code: true if exception has an error code
  */
 #define INTERRUPT_HANDLER(name, str, error_code)            \
 void name(void) {                                           \
@@ -38,7 +38,7 @@ void name(void) {                                           \
   asm volatile ("movl %%esp, %0" : "=q" (esp));             \
   asm volatile ("movl %%cr2, %0" : "=q" (cr2));             \
   /* s points to top of the kernel stack */                 \
-  s = (uint32_t*) esp;                                      \
+  s = (uint32_t *) esp;                                      \
   PRINT_INFO(0, "Error %d", (str));                         \
   PRINT_INFO(1, "PID %d", current_running->pid);            \
   /* print stack pointer */                                 \

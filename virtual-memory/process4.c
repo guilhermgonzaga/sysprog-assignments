@@ -27,7 +27,7 @@ int main(void)
   int q, fi, fo;    /* mbox numbers */
   int size, c, i, j;
   /* should the process wait for token or send token */
-  int wait = FALSE;
+  int wait = false;
   int count, space;
 
   /* q: shared buffer, process 3 sends message m to process 4 */
@@ -65,7 +65,7 @@ int main(void)
           exit();
         }
 
-        wait = FALSE;
+        wait = false;
       } else {
         mbox_stat(q, &count, &space);
         /*
@@ -74,7 +74,7 @@ int main(void)
         if (count == 0) {
           token.size = 0;
           mbox_send(fo, &token);
-          wait = TRUE;
+          wait = true;
         }
       }
     } else if (i == 5000) {

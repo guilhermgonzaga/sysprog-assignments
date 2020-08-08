@@ -36,9 +36,9 @@ static void scroll_lock_handler(unsigned char c);
  * These bits are set by the assosiated handler.
  */
 
-static char shift_status = FALSE;
-static char key_release = FALSE;
-static char multiread = FALSE;
+static char shift_status = false;
+static char key_release = false;
+static char multiread = false;
 
 /*
  * scan_to_ascii[SCAN CODE] = {no_shift, shift, control, handler}
@@ -141,7 +141,7 @@ void normal_handler(unsigned char scan)
 {
   struct character char_read;
 
-  if (key_release == FALSE) {
+  if (key_release == false) {
     char_read.scancode = scan;
     char_read.attribute = shift_status;
 
@@ -179,7 +179,7 @@ void escape_handler(unsigned char c)
 /* Sets right shift bit in shift_status */
 void right_shift_handler(unsigned char c)
 {
-  if (key_release == FALSE)
+  if (key_release == false)
     shift_status |= RIGHT_SHIFT;
   else
     shift_status &= ~RIGHT_SHIFT;
@@ -188,7 +188,7 @@ void right_shift_handler(unsigned char c)
 /* Sets left shift bit in shift_status */
 void left_shift_handler(unsigned char c)
 {
-  if (key_release == FALSE)
+  if (key_release == false)
     shift_status |= LEFT_SHIFT;
   else
     shift_status &= ~LEFT_SHIFT;
@@ -197,7 +197,7 @@ void left_shift_handler(unsigned char c)
 /* Sets control bit in shift_status */
 void control_handler(unsigned char c)
 {
-  if (key_release == FALSE)
+  if (key_release == false)
     shift_status |= CONTROL;
   else
     shift_status &= ~CONTROL;
@@ -206,7 +206,7 @@ void control_handler(unsigned char c)
 /* Sets alt bit in shift_status */
 void alt_handler(unsigned char c)
 {
-  if (key_release == FALSE)
+  if (key_release == false)
     shift_status |= ALT;
   else
     shift_status &= ~ALT;
@@ -215,7 +215,7 @@ void alt_handler(unsigned char c)
 /* Sets caps lock bit in shift_status */
 void caps_lock_handler(unsigned char c)
 {
-  if (key_release == FALSE) {
+  if (key_release == false) {
     if (shift_status & CAPS_SHIFT)
       shift_status &= ~CAPS_SHIFT;
     else
@@ -246,13 +246,13 @@ void keyboard_interrupt(void)
 
   /* check if this is a key release or press */
   if (key & 0x80)    /* bit 7 set */
-    key_release = TRUE;
+    key_release = true;
   else
-    key_release = FALSE;
+    key_release = false;
 
   /* Check if this is a multiread */
   if (key == 0xe0) {
-    multiread = TRUE;
+    multiread = true;
     key = inb(0x60);
   }
 

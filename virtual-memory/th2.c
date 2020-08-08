@@ -26,7 +26,7 @@ static void print_trace(int thread, int status);
 
 static int shared_var = 0;
 static int exit_count = 0; /* number of threads that have exited */
-static volatile int init = FALSE; /* is lock l initialized */
+static volatile int init = false; /* is lock l initialized */
 static lock_t l; /* Lock for the monitor */
 static condition_t c0mod3; /* thread3 waits for this one */
 static condition_t cnot0mod3; /* thread2 waits for this one */
@@ -48,10 +48,10 @@ void thread2(void)
   condition_init(&cnot0mod3);
 
   /*
-   * The other thread waits for init to become TRUE, which signals
+   * The other thread waits for init to become true, which signals
    * that the locks and condition variables are initialized
    */
-  init = TRUE;
+  init = true;
   /* Now do some testing */
   for (i = 0; i < 200; i++) {
     /* Enter monitor */

@@ -188,21 +188,21 @@ void exception_14(unsigned long cr2, unsigned long err)
  */
 
 /* Default interrupt handler */
-INTERRUPT_HANDLER(bogus_interrupt, "In bogus_interrupt", FALSE);
+INTERRUPT_HANDLER(bogus_interrupt, "In bogus_interrupt", false);
 
 /* Various exception handlers */
-INTERRUPT_HANDLER(exception_0, "Excp. 0 - Divide by zero", FALSE);
-INTERRUPT_HANDLER(exception_1, "Excp. 1 - Debug", FALSE);
-INTERRUPT_HANDLER(exception_2, "Excp. 2 - NMI", FALSE);
-INTERRUPT_HANDLER(exception_3, "Excp. 3 - Breakpoint", FALSE);
-INTERRUPT_HANDLER(exception_4, "Excp. 4 - INTO instruction", FALSE);
-INTERRUPT_HANDLER(exception_5, "Excp. 5 - BOUNDS instruction", FALSE);
-INTERRUPT_HANDLER(exception_6, "Excp. 6 - Invalid opcode", FALSE);
-INTERRUPT_HANDLER(exception_7, "Excp. 7 - Device not available", FALSE);
-INTERRUPT_HANDLER(exception_8, "Excp. 8 - Double fault encountered", TRUE);
+INTERRUPT_HANDLER(exception_0, "Excp. 0 - Divide by zero", false);
+INTERRUPT_HANDLER(exception_1, "Excp. 1 - Debug", false);
+INTERRUPT_HANDLER(exception_2, "Excp. 2 - NMI", false);
+INTERRUPT_HANDLER(exception_3, "Excp. 3 - Breakpoint", false);
+INTERRUPT_HANDLER(exception_4, "Excp. 4 - INTO instruction", false);
+INTERRUPT_HANDLER(exception_5, "Excp. 5 - BOUNDS instruction", false);
+INTERRUPT_HANDLER(exception_6, "Excp. 6 - Invalid opcode", false);
+INTERRUPT_HANDLER(exception_7, "Excp. 7 - Device not available", false);
+INTERRUPT_HANDLER(exception_8, "Excp. 8 - Double fault encountered", true);
 INTERRUPT_HANDLER(exception_9, "Excp. 9 - Coprocessor segment overrun",
-      FALSE);
-INTERRUPT_HANDLER(exception_10, "Excp. 10 - Invalid TSS Fault", TRUE);
-INTERRUPT_HANDLER(exception_11, "Excp. 11 - Segment not Present", TRUE);
-INTERRUPT_HANDLER(exception_12, "Excp. 12 - Stack exception", TRUE);
-INTERRUPT_HANDLER(exception_13, "Excp. 13 - General Protection", TRUE);
+      false);
+INTERRUPT_HANDLER(exception_10, "Excp. 10 - Invalid TSS Fault", true);
+INTERRUPT_HANDLER(exception_11, "Excp. 11 - Segment not Present", true);
+INTERRUPT_HANDLER(exception_12, "Excp. 12 - Stack exception", true);
+INTERRUPT_HANDLER(exception_13, "Excp. 13 - General Protection", true);

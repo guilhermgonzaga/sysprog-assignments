@@ -104,6 +104,7 @@ clean:
 	-$(RM) *.o
 	-$(RM) usb/*.o
 	-$(RM) asmsyms.h
+	-$(RM) serial.out
 	-$(RM) $(PROCESSES:.o=) kernel image createimage bootblock asmdefs
 	-$(RM) .depend
 

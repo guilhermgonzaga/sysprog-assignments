@@ -4,9 +4,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#ifndef NULL
-#define NULL ((void*) 0)
-#endif
+#include <stdbool.h>
+#include <stddef.h>
+
 
 /* Size of a sector on the USB */
 #define SECTOR_SIZE 512
@@ -62,15 +62,11 @@ do {                                              \
 #define ASSERT(p) ASSERT2(p, #p)
 
 /* Gives us the source file and line number where we decide to hang the os. */
-#define HALT(s) ASSERT2(FALSE, s)
+#define HALT(s) ASSERT2(false, s)
 
-/* Typedefs of commonly used types */
-typedef enum {
-  FALSE, TRUE
-} bool_t;
 
 /*
- * stdint.h has typedefs for int8_t, uint8_t etc...
+ * stdint.h has typedefs for uint8_t, uint16_t etc...
  */
 #include "stdint.h"
 

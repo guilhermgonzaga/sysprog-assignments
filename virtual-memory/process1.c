@@ -26,7 +26,7 @@ int main(void)
 {
   int loc_x = PLANE_LOC_X_MAX;
   int loc_y = PLANE_LOC_Y_MAX;
-  int fired = FALSE;
+  int fired = false;
   int bullet_x = -1;
   int bullet_y = -1;
   msg_t m;    /* "fire bullet" message */
@@ -61,7 +61,7 @@ int main(void)
         }
 
         /* fire bullet */
-        fired = TRUE;
+        fired = true;
         if (loc_x < PLANE_BULLET_X_MIN)
           bullet_x = PLANE_LOC_X_MAX;
         else
@@ -72,7 +72,7 @@ int main(void)
 
     if (fired) {
       /* erase bullet */
-      draw_bullet(bullet_x, bullet_y, FALSE);
+      draw_bullet(bullet_x, bullet_y, false);
 
       /* if bullet hit a character at screen[X-1, Y] */
       if ((bullet_x - 1 >= 0) &&
@@ -83,8 +83,8 @@ int main(void)
          * erase bullet and character at
          * screen[X-1, Y]
          */
-        draw_bullet(bullet_x - 1, bullet_y, FALSE);
-        fired = FALSE;
+        draw_bullet(bullet_x - 1, bullet_y, false);
+        fired = false;
       }
       /* if bullet hit a character at screen[X-2, Y] */
       else if ((bullet_x - 2 >= 0) &&
@@ -96,17 +96,17 @@ int main(void)
          * erase bullet and character at
          * screen[X-2, Y]
          */
-        draw_bullet(bullet_x - 2, bullet_y, FALSE);
-        fired = FALSE;
+        draw_bullet(bullet_x - 2, bullet_y, false);
+        fired = false;
       }
       /* bullet did not hit a character */
       else {
         bullet_x -= 2;
         if (bullet_x < 0)
-          fired = FALSE;
+          fired = false;
         else
           draw_bullet(bullet_x, bullet_y,
-                      TRUE);
+                      true);
       }
     }
     ms_delay(250);

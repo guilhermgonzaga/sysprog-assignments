@@ -502,7 +502,7 @@ static int create_thread(int i)
   pcb_t *p = alloc_pcb();
 
   p->pid = next_pid++;
-  p->is_thread = TRUE;
+  p->is_thread = true;
 
   ASSERT2(next_stack < STACK_MAX, "Out of stack space");
   p->kernel_stack = p->base_kernel_stack = next_stack + STACK_OFFSET;
@@ -514,7 +514,7 @@ static int create_thread(int i)
    */
   STI_FL(eflags);
 
-  p->first_time = TRUE;
+  p->first_time = true;
   p->priority = 10;
   p->status = RUNNING;
   p->nested_count = 0;
@@ -560,7 +560,7 @@ static int create_process(uint32_t location, uint32_t size)
   long eflags = CLI_FL();
 
   p->pid = next_pid++;
-  p->is_thread = FALSE;
+  p->is_thread = false;
 
   /* allocate kernel stack */
   ASSERT2(next_stack < STACK_MAX, "Out of stack space");
@@ -569,7 +569,7 @@ static int create_process(uint32_t location, uint32_t size)
 
   STI_FL(eflags);
 
-  p->first_time = TRUE;
+  p->first_time = true;
   p->priority = 10;
   p->status = RUNNING;
   p->nested_count = 0;

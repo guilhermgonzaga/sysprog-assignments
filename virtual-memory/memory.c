@@ -127,7 +127,7 @@ void insert_ptab_dir(uint32_t *dir, uint32_t *tab, uint32_t vaddr,
 
 /* Allocate a page. Return page index in the page_map directory.
  *
- * Marks page as pinned if pinned == TRUE.
+ * Marks page as pinned if pinned == true.
  * Swap out a page if no space is available.
  */
 int page_alloc(int pinned) {
@@ -151,7 +151,7 @@ int page_alloc(int pinned) {
       bzero(data, PAGE_SIZE);
     }
 
-    entry->pinned = pinned == TRUE; /* Convert to 0/1 before assignment */
+    entry->pinned = pinned == true; /* Convert to 0/1 before assignment */
   }
 
   return page_idx;
@@ -229,7 +229,7 @@ void page_fault_handler(void) {
 
   /* Allocate a physical page and swap-in the missing page */
 
-  int page_idx = page_alloc((ptab_entry & PE_PIN) ? TRUE : FALSE);
+  int page_idx = page_alloc((ptab_entry & PE_PIN) ? true : false);
   ASSERT(page_idx != -1);
 
   page_map[page_idx].swap_loc = current_running->swap_loc;
