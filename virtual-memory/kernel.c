@@ -35,7 +35,7 @@ static void insert_pcb(pcb_t * p);
 /* System call table */
 syscall_t syscall[SYSCALL_COUNT];
 
-/* Statically allocate some storage for the pcb's */
+/* Statically allocate some storage for the PCBs */
 pcb_t pcb[PCB_TABLE_SIZE];
 /* Ready queue and pointer to currently running process */
 pcb_t *current_running;
@@ -45,7 +45,7 @@ static struct gate_t idt[IDT_SIZE];
 static struct segment_t gdt[GDT_SIZE];
 struct tss_t tss;
 
-/* Used for allocation of pids, kernel stack, and pcbs */
+/* Used for allocation of pids, kernel stack, and PCBs */
 static pcb_t *next_free_pcb;
 static int next_pid = 0;
 static int next_stack = STACK_MIN;
@@ -472,12 +472,12 @@ void init_tss(void)
 }
 
 
-/* Initialize pcb table before allocating pcbs */
+/* Initialize PCB table before allocating PCBs */
 static void init_pcb_table()
 {
   int i;
 
-  /* link all the pcbs together in the next_free_pcb list */
+  /* link all the PCBs together in the next_free_pcb list */
   for (i = 0; i < PCB_TABLE_SIZE - 1; i++)
     pcb[i].next = &pcb[i + 1];
 
@@ -489,7 +489,7 @@ static void init_pcb_table()
 }
 
 /*
- * Allocate and set up the pcb for a new thread, allocate resources
+ * Allocate and set up the PCB for a new thread, allocate resources
  * for it and insert it into the ready queue.
  */
 static int create_thread(int i)
@@ -548,7 +548,7 @@ static int create_thread(int i)
 /*
  * create_process()
  *
- * Allocate and set up the pcb for a new process, allocate resources
+ * Allocate and set up the PCB for a new process, allocate resources
  * for it and insert it into the ready queue.
  *
  * CLI_FL() / STI_FL() are used since we touch and modify global
@@ -597,7 +597,7 @@ static int create_process(uint32_t location, uint32_t size)
   return 0;
 }
 
-/* Get a free pcb */
+/* Get a free PCB */
 static pcb_t *alloc_pcb()
 {
   pcb_t *p;
@@ -617,9 +617,9 @@ static pcb_t *alloc_pcb()
 }
 
 /*
- * Insert the pcb into the ready queue.
+ * Insert the PCB into the ready queue.
  */
-static void insert_pcb(pcb_t * p)
+static void insert_pcb(pcb_t *p)
 {
   long eflags;
 
@@ -641,7 +641,7 @@ static void insert_pcb(pcb_t * p)
 }
 
 /* put the pcb back into the free list */
-void free_pcb(pcb_t * p)
+void free_pcb(pcb_t *p)
 {
   long eflags;
 

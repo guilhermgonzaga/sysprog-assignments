@@ -42,7 +42,7 @@ enum {
   PAGE_DIRECTORY_MASK = 0xffc00000, /* page directory mask */
   PAGE_TABLE_MASK = 0x003ff000,     /* page table mask */
   PAGE_MASK = 0x00000fff,           /* page offset mask */
-  /* used to extract the 10 lsb of a page directory entry */
+  /* used to extract the 10 LSB of a page directory entry */
   MODE_MASK = 0x000003ff,
 
   PAGE_TABLE_SIZE = (1024 * 4096 - 1) /* size of a page table in bytes */
@@ -97,7 +97,7 @@ int page_alloc(int pinned);
 void init_memory(void);
 
 /* Set up a page directory and page table for the given process. Fill in
- * any necessary information in the pcb.
+ * any necessary information in the PCB.
  */
 void setup_page_table(pcb_t *p);
 

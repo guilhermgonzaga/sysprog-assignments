@@ -56,7 +56,7 @@ enum {
    */
   NUM_THREADS = 5,
 
-  /* Number of pcbs the OS supports */
+  /* Number of PCBs the OS supports */
   PCB_TABLE_SIZE = 128,
 
   /* kernel stack allocator constants */
@@ -225,7 +225,7 @@ typedef void (*func_t) (void);
  */
 extern syscall_t syscall[SYSCALL_COUNT];
 
-/* An array of pcb structures we can allocate pcbs from */
+/* An array of PCB structures we can allocate PCBs from */
 extern pcb_t pcb[];
 
 /* The currently running process, and also a pointer to the ready queue */

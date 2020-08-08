@@ -27,7 +27,7 @@ uint32_t cpu_mhz = 0;
  */
 static uint32_t calibrate_tsc(void)
 {
-  uint32_t last_tsc_low;  /* lsb 32 bits of Time Stamp Counter */
+  uint32_t last_tsc_low;  /* least significant 32 bits of Time Stamp Counter */
 
   /* Set the Gate high, disable speaker */
   outb(0x61, (inb(0x61) & ~0x02) | 0x01);

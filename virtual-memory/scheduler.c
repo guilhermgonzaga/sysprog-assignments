@@ -37,7 +37,7 @@ void scheduler(void)
   unsigned long long t;
 
   /*
-   * Save hardware interrupt mask in the pcb struct. The mask
+   * Save hardware interrupt mask in the PCB struct. The mask
    * will be restored in setup_current_running()
    */
   current_running->int_controller_mask = ((uint16_t)inb(0x21)) |
@@ -74,7 +74,7 @@ void scheduler(void)
 
       current_running = current_running->next;
       /*
-       * Remove pcb from the ready queue and insert
+       * Remove PCB from the ready queue and insert
        * it into the free_pcb queue
        */
       free_pcb(current_running->previous);
@@ -168,7 +168,7 @@ void unblock(pcb_t ** q)
     new = (*q);
     (*q) = NULL;
   }
-  /* (*q) not only pcb in queue */
+  /* (*q) not only PCB in queue */
   else {
     for (tmp = *q;
          tmp->next_blocked->next_blocked != NULL;
@@ -176,7 +176,7 @@ void unblock(pcb_t ** q)
       /* do nothing */ ;
 
     new = tmp->next_blocked;
-    /* new = last pcb in waiting queue */
+    /* new = last PCB in waiting queue */
     tmp->next_blocked = NULL;
   }
 

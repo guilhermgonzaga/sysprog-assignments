@@ -141,10 +141,10 @@ int cpuspeed(void);
  * Remove current running from ready queue and insert it into 'q', and
  * release <spinlock> (don't touch <spinlock> if it is 0!)
  */
-void block(pcb_t ** q, int *spinlock);
+void block(pcb_t **q, int *spinlock);
 
 /* Move first process in 'q' into the ready queue */
-void unblock(pcb_t ** q);
+void unblock(pcb_t **q);
 
 
 /* Read the directory from the USB stick and copy it to 'buf' */
@@ -153,7 +153,7 @@ int readdir(unsigned char *buf);
 /* Load a process from the USB stick */
 void loadproc(int location, int size);
 
-/* Remove pcb from its current queue and insert it into the free_pcb queue */
-void free_pcb(pcb_t * pcb);
+/* Remove p from its current queue and insert it into the free_pcb queue */
+void free_pcb(pcb_t *p);
 
 #endif /* !SCHEDULER_H */
