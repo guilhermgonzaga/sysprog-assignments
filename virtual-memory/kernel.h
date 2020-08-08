@@ -54,7 +54,7 @@ enum {
    * Number of threads initially started by the kernel. Change this
    * when adding to or removing elements from the start_addr array.
    */
-  NUM_THREADS = 4,  // FIXME: remember to restore kernel.c too
+  NUM_THREADS = 5,
 
   /* Number of pcbs the OS supports */
   PCB_TABLE_SIZE = 128,

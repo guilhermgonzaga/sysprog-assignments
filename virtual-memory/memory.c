@@ -145,7 +145,7 @@ int page_alloc(int pinned) {
         flush_tlb_entry(entry->vaddr);
       }
 
-      /* Zero-out the page */
+      /* Zero out the page */
       void *data = page_addr(page_idx);
       ASSERT(data != NULL);
       bzero(data, PAGE_SIZE);
@@ -227,7 +227,7 @@ void page_fault_handler(void) {
   uint32_t *ptab = (uint32_t *) current_running->page_directory[dir_idx];
   uint32_t ptab_entry = ptab[tab_idx];
 
-  /* Allocate a physical page and swap-in the missing page */
+  /* Allocate a physical page and swap in the missing page */
 
   int page_idx = page_alloc((ptab_entry & PE_PIN) ? true : false);
   ASSERT(page_idx != -1);
