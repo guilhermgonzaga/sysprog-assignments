@@ -6,6 +6,7 @@
 # Binary file patterns
 *.a
 *.o
+*.bin
 *.out
 
 # Specific editor/IDE configuration folders

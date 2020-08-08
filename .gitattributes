@@ -4,6 +4,7 @@
 # Denote all files that are truly binary and should not be modified.
 *.a   binary
 *.o   binary
+*.bin binary
 *.out binary
 
 buildimage/bin/buildimage.given         binary
