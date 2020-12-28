@@ -3,9 +3,9 @@
 [![GitHub Workflow][gh-build-badge]][gh-actions]
 [![Lines of Code](https://tokei.rs/b1/github/guilhermgonzaga/sysprog-assignments?category=code)][repo-url]
 
-[repo-url]:       https://github.com/guilhermgonzaga/systems-programming-assignments/
-[gh-actions]:     https://github.com/guilhermgonzaga/systems-programming-assignments/actions
-[gh-build-badge]: https://github.com/guilhermgonzaga/systems-programming-assignments/workflows/Build/badge.svg
+[repo-url]:       https://github.com/guilhermgonzaga/sysprog-assignments/
+[gh-actions]:     https://github.com/guilhermgonzaga/sysprog-assignments/actions
+[gh-build-badge]: https://github.com/guilhermgonzaga/sysprog-assignments/workflows/Build/badge.svg
 
 
 Assignments done for a Systems Programming course at the [UFMS Faculty of Computing](https://facom.ufms.br), Brazil.
